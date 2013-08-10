@@ -7,7 +7,7 @@ communication:
     file sharing: github
 
 project:
-    name: water...
+    name: water...,     chosed "one" as project name
     what?: a tetris clone (more on wikipedia)
     time/speed: use speed first, this can be changed later
 
