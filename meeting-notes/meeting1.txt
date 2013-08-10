@@ -1,0 +1,22 @@
+Tetris project
+Objective:
+    playable
+    cute
+    enjoyable
+    bug-free
+
+time:
+    1-month in total
+    w1:
+        design
+    w2, 3:
+        coding
+    w4:
+        debuggin/refining
+
+Next meeting:
+    8pm Aus, 5pm Vn
+    Sharing
+
+TODO: Language of choice
+    Why?

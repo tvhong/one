@@ -1,0 +1,15 @@
+***2nd meeting***
+
+communication:
+    means: gtalk
+    max duration: 1 hour
+    time: 6.30pm / 9.30pm, Tue & Fri
+    file sharing: github
+
+project:
+    name: water...
+    what?: a tetris clone (more on wikipedia)
+    time/speed: use speed first, this can be changed later
+
+project duration:
+    change to only a half i.e. 2 weeks!!!!    
