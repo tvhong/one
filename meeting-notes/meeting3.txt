@@ -22,6 +22,9 @@ Features:   //just for my own note
     Generating new pieces
     Drop pieces
     Eat line
+    Save user profile
+        Highscore
+        Current level
     
 Graphic guide:
     https://en.wikipedia.org/wiki/File:Tetrominoes_IJLO_STZ_Worlds.svg
