@@ -1,0 +1,41 @@
+========================================================
+overview
+========================================================
+    language of choice
+    how to structure the game in general
+
+========================================================
+discussion
+========================================================
+Language:
+    Python 3.3
+
+Resource:
+    pygame.com
+
+Structure:
+    Squares
+    Pieces
+        type
+
+Features:   //just for my own note
+    Generating new pieces
+    Drop pieces
+    Eat line
+    
+Graphic guide:
+    https://en.wikipedia.org/wiki/File:Tetrominoes_IJLO_STZ_Worlds.svg
+
+========================================================
+todo
+========================================================
+__V:
+    Pieces & Block structures
+    Reading:
+        http://www.pygame.org/project-Making+Games+with+Python+%26+Pygame-2404-4067.html
+        http://inventwithpython.com/makinggames.pdf
+        http://inventwithpython.com/pygame/chapters/
+__S:
+    Learn Graphical stuffs
+    Maybe sounds
+    A skeleton
