@@ -1,0 +1,18 @@
+***
+4th meeting
+so sleepy :(
+*****
+mostly talked about low-level things
+
+rotation pattern representation:
+    hardcoding patterns:
+        easy
+        more control
+        less code
+        a bit of work when introduce new Pieces (unlikely..)
+    auto rotating (using a general algorithm):
+        more code to write
+        sound cool (lol)
+        in the end will have to deal with special cases anyway
+
+note: try to work on different files to avoid conflicts
