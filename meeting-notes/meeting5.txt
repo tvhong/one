@@ -1,0 +1,12 @@
+What the heck are we doing?
+    S: Can draw a square with color
+    V: Writing Piece class  // doesn't sound really promising
+
+Agreements:
+    Use Blocky Movement
+        No pixels in Pieces
+    Use hard-coded rotation pieces
+    Use "new" gravity instead of "floating" gravity
+    Deadline: 
+        End of next week..
+        Sun 25th
