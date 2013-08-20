@@ -1,20 +1,16 @@
-import sys,pygame
+import sys,pygame,graphics
 from pygame.locals import *
+from gameconstants import *
 
 FPS = 30
-WINDOW_WIDTH = 600
-WINDOW_HEIGHT = 700
-BLACK = (0,0,0)
-
-BG_COLOR = BLACK
-
 GAME_NAME = 'Tetris!!'
 
 def main():
     global FPSCLOCK, DISPLAYSURF
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
-    DISPLAYSURF = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+    DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
+    graphics.init(DISPLAYSURF)
     pygame.display.set_caption(GAME_NAME)
     # show main menu or sth
 
@@ -78,6 +74,6 @@ def startGame():
         # draw things - S's
 
         FPSCLOCK.tick(FPS)
-
-if __name__ == '__main__':
-    main()
+        
+############
+main()
