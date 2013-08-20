@@ -50,14 +50,15 @@ blockShapes[TYPE_J][DIR_LEFT] = [
                 [0,0,0,0]];
 #TODO: insert more patterns
 
-def _generateBoxes(bType, x, y, direction):
-    boxes = []
-    for i in range(4):      #i-correspond_to-y
-        for j in range(4):      #j-correspond_to-x
-            #if blockShapes[bType][DIR_UP][i][j] != 0:
-            if blockShapes[bType][direction][j][i] != 0:
-                boxes.append((x+i, y+j))
-    return boxes
+fallingPieces = []
+stationaryPieces = []
+board = [[BLANK]*BOARDROWS for i in range(BOARDCOLS)]
+
+def update(timePassed):
+    pass
+
+def getPieces():
+    return fallingPieces + stationaryPieces
 
 class Piece:
     """
@@ -70,10 +71,19 @@ class Piece:
         self.y = y
         self.direction = direction
         self.splitted = splitted
-        if self.splitted:
-            self.boxes = [(x, y)]
+        if not splitted:
+            self.boxes = self._generateBoxes(bType, x, y, direction)
         else:
-            self.boxes = _generateBoxes(bType, x, y, direction)
+            self.boxes = []
+
+    def _generateBoxes(self, bType, x, y, direction):
+        boxes = []
+        for i in range(4):      #i-correspond_to-y
+            for j in range(4):      #j-correspond_to-x
+                #if blockShapes[bType][DIR_UP][i][j] != 0:
+                if blockShapes[bType][direction][j][i] != 0:
+                    boxes.append((x+i, y+j))
+        return boxes
 
     def rotateRight(self):
         if not self.splitted:
@@ -105,22 +115,21 @@ class Piece:
         """
         Piece.moveDown(): return Piece
         """
-        return Piece(self.bType, self.x, self.y + 1, self.direction, self.self.splitted)
+        return Piece(self.bType, self.x, self.y + 1, self.direction, self.splitted)
 
-    #TODO: no need for this, change to self.split()
-    def fallApart(self):
+    def split(self, x, y):
         """
-        Piece.fallApart() : return [self.splitted pieces]
+        Piece.split() : return highPiece, lowPiece or None
         """
-        return [Piece(self.bType, sqr.squareX, sqr.squareY, splitted=True)
-                for sqr in self.boxes]
+        if (x, y) in self.boxes:
+            highPiece = Piece(self.bType, self.x, self.y, splitted=True)    # x & y aren't important here
+            lowPiece = Piece(self.bType, self.x, y+1, splitted=True)
+            highPiece.boxes = [b for b in self.boxes if b[1] < y]
+            lowPiece.boxes = [b for b in self.boxes if b[1] > y]
+            return highPiece, lowPiece
 
     def getBoxes(self):
         return self.boxes
-
-    def getPieces(self):
-        # TODO: need to separate boxes and falling boxes
-        return boxes
 
     def __str__(self):
         rep = ""
