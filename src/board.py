@@ -4,6 +4,7 @@ from gameconstants import *
 
 # block direction constants
 DIR_UP, DIR_RIGHT, DIR_DOWN, DIR_LEFT = range(4)
+CMD_ROTATE_R, CMD_ROTATE_L, CMD_MOVE_R, CMD_MOVE_L = range(4)
 
 # blockShapes[7 TYPES][4 rotations][PATTERNSIZE rows][PATTERNSIZE cols]
 blockShapes = [[[[0]*PATTERNSIZE]*PATTERNSIZE]*4]*TYPES;
@@ -62,41 +63,95 @@ def init():
     fallingPieces = []
     stationaryPieces = []
 
+def getPieces():
+    return fallingPieces + stationaryPieces
+
 def rotateRight():
-    pass
+    _movePiece(CMD_ROTATE_R)
+
 def rotateLeft():
-    '''Handle rotate left key pressed'''
-    pass
+    _movePiece(CMD_ROTATE_L)
+
+def moveRight():
+    _movePiece(CMD_MOVE_R)
+
+def moveLeft():
+    _movePiece(CMD_MOVE_L)
+
 def drop():
     '''Handle a drop (spacebar)'''
-    pass
-def moveRight():
-    '''Handle right key pressed'''
-    pass
-def moveLeft():
-    pass
-def moveDown(distance):
+    global fallingPieces
+    while (len(fallingPieces) > 0):
+        moveDown()
+
+def moveDown():
     '''
     Move the falling pieces down by distance
     If a line is eaten, then this will inform main.lineEaten([eaten lines])
-    else create a new piece and continue
+    If a new Piece is generated after this
     '''
-    pass
+    # TODO: not finished yet
     global board, pendingPieces, fallingPieces, stationaryPieces
     if len(fallingPieces) == 0:
-        # need to put a new piece out
-        if (len(pendingPieces) < PENDING_MIN):
-            pendingPieces = pendingPieces + [random.randrange(TYPES) for i in range(PENDING_MAX - PENDING_MIN)]
+        fallingPieces.append(_generateNewPiece())
+        return
 
-        fallingPieces.append(pendingPieces.pop(0))
 
-def getPieces():
-    return fallingPieces + stationaryPieces
+########################################################################
+### Helper functions
+########################################################################
+
+def _checkCollision(piece):
+    '''return true if collide'''
+    global board
+    if piece == None:
+        return True
+    for x, y in piece.boxes:
+        if board[x][y] != 0:
+            return True
+    return False
+
+def _movePiece(command):
+    '''not for moveDown'''
+    global fallingPieces
+    if len(fallingPieces) > 1: return  # try to prune line eating case
+    if command == CMD_ROTATE_R:
+        newPiece = fallingPieces[0].rotateRight()
+    elif command == CMD_ROTATE_L:
+        newPiece = fallingPieces[0].rotateLeft()
+    elif command == CMD_MOVE_R:
+        newPiece = fallingPieces[0].moveRight()
+    elif command == CMD_MOVE_L:
+        newPiece = fallingPieces[0].moveLeft()
+
+    if _checkCollision(newPiece) == False:
+        fallingPieces = [newPiece]
+
+def _generateNewPiece():
+    if (len(pendingPieces) < PENDING_MIN):
+        pendingPieces = pendingPieces + [random.randrange(TYPES) \
+                        for i in range(PENDING_MAX - PENDING_MIN)]
+    return Piece(pendingPieces.pop(0), (BOARDCOLS - PATTERNSIZE)/2, -3)
+    # bad bad bad, -3 is bad
+
+def _cmp(piece1, piece2):
+    y1 = piece1.boxes[len(piece1.boxes)]    # get the lowest y
+    y2 = piece2.boxes[len(piece2.boxes)]
+    if (y1 > y2):
+        return 1
+    if (y1 < y2):
+        return -1
+    return 0
+
+########################################################################
+### Piece
+########################################################################
 
 class Piece:
     """
     Piece(bType, x, y): return Piece
     self.splitted is used for breaking up pieces only
+    invariant: boxes will be ordered by min y first
     """
     def __init__(self, bType, x, y, direction=DIR_UP, splitted=False):
         self.bType = bType

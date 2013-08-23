@@ -22,6 +22,9 @@ def main():
 def lineEaten(lines):
     pass
 
+def newPieceGenerated():
+    pass
+
 def nop():
     return
 
