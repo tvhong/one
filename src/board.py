@@ -1,12 +1,12 @@
-import pygame
+import pygame, random
 from pygame.locals import *
 from gameconstants import *
 
 # block direction constants
 DIR_UP, DIR_RIGHT, DIR_DOWN, DIR_LEFT = range(4)
 
-# blockShapes[7 kinds][4 rotations][REP_SIZE rows][REP_SIZE cols]
-blockShapes = [[[[0 for h in range(4)] for k in range(4)] for j in range(4)] for i in range(7)]
+# blockShapes[7 TYPES][4 rotations][PATTERNSIZE rows][PATTERNSIZE cols]
+blockShapes = [[[[0]*PATTERNSIZE]*PATTERNSIZE]*4]*TYPES;
 blockShapes[TYPE_L][DIR_UP] = [
                 [1,0,0,0],
                 [1,0,0,0],
@@ -48,14 +48,47 @@ blockShapes[TYPE_J][DIR_LEFT] = [
                 [1,1,1,0],
                 [0,0,1,0],
                 [0,0,0,0]];
-#TODO: insert more patterns
+# TODO: insert more patterns
 
-fallingPieces = []
-stationaryPieces = []
-board = [[BLANK]*BOARDROWS for i in range(BOARDCOLS)]
+level = 1
+interval = 90   # should make a function to change
+PENDING_MAX = 50  # max number of elements in pendingPieces
+PENDING_MIN = 4   # min number of elements in pendingPieces before renewing
 
-def update(timePassed):
+def init():
+    global board, pendingPieces, fallingPieces, stationaryPieces
+    board = [[BLANK]*BOARDROWS for i in range(BOARDCOLS)]
+    pendingPieces = [random.randrange(TYPES) for i in range(PENDING_MAX)]
+    fallingPieces = []
+    stationaryPieces = []
+
+def rotateRight():
     pass
+def rotateLeft():
+    '''Handle rotate left key pressed'''
+    pass
+def drop():
+    '''Handle a drop (spacebar)'''
+    pass
+def moveRight():
+    '''Handle right key pressed'''
+    pass
+def moveLeft():
+    pass
+def moveDown(distance):
+    '''
+    Move the falling pieces down by distance
+    If a line is eaten, then this will inform main.lineEaten([eaten lines])
+    else create a new piece and continue
+    '''
+    pass
+    global board, pendingPieces, fallingPieces, stationaryPieces
+    if len(fallingPieces) == 0:
+        # need to put a new piece out
+        if (len(pendingPieces) < PENDING_MIN):
+            pendingPieces = pendingPieces + [random.randrange(TYPES) for i in range(PENDING_MAX - PENDING_MIN)]
+
+        fallingPieces.append(pendingPieces.pop(0))
 
 def getPieces():
     return fallingPieces + stationaryPieces

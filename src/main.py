@@ -19,6 +19,9 @@ def main():
     # by now, the game is over
     terminate()
 
+def lineEaten(lines):
+    pass
+
 def nop():
     return
 
