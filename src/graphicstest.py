@@ -14,10 +14,15 @@ def main():
     assert len(board) == BOARDROWS
     for i in range(BOARDROWS):
         assert len(board[i]) == BOARDCOLS
-    board[0][0] = '.'
-    board[0][1] = '.'
-    board[1][0] = '.'
-    board[1][1] = '.'
+    board[0][0] = TYPE_O
+    board[0][1] = TYPE_O
+    board[1][0] = TYPE_O
+    board[1][1] = TYPE_O
+
+    board[5][5] = TYPE_I
+    board[6][5] = TYPE_I
+    board[7][5] = TYPE_I
+    board[8][5] = TYPE_I
     
     while (True):
         for event in pygame.event.get(QUIT):

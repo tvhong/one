@@ -1,4 +1,4 @@
-import sys,pygame,graphics
+import sys,pygame,graphics,game
 from pygame.locals import *
 from gameconstants import *
 
@@ -6,14 +6,16 @@ FPS = 30
 GAME_NAME = 'Tetris!!'
 
 def main():
-    global FPSCLOCK, DISPLAYSURF
+    global FPSCLOCK, DISPLAYSURF, running
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
     graphics.init(DISPLAYSURF)
     pygame.display.set_caption(GAME_NAME)
+    running = False
     # show main menu or sth
 
+    game.init()
     startGame()
     
     # by now, the game is over
@@ -34,18 +36,23 @@ def terminate():
 
 def pauseGame():
     # S's TODO
+    running = False
     return
 
 def startGame():
     # init game board here
-    
-    while True:
+    running = True
+    lastMoveDown = time.time()
+    while running == True:
         # check game over / won - V's
+        if game.checkGameEnd():
+            # do something here: show scores, restart, give candies, whatever
+            return
         
         # check events - S's & V's
         for event in pygame.event.get(QUIT):
             terminate()
-            
+
         for event in pygame.event.get():
             if event.type == KEYUP: # check key release
                 if (event.key == K_p):
@@ -60,25 +67,26 @@ def startGame():
 
             elif event.type == KEYDOWN: # check key press
                 if (event.key == K_LEFT or event.key == K_a):
-                    # try to move left
-                    nop()
+                    game.moveLeft()
+                    
                 elif (event.key == K_RIGHT or event.key == K_d):
-                    # try to move right
-                    nop()
+                    game.moveRight()
+                    
                 elif (event.key == K_UP or event.key == K_w):
-                    # try to rotate clockwise
-                    nop()
+                    game.rotateRight()
+                    
                 elif (event.key == K_DOWN or event.key == K_s):
-                    # try to rotate counter - clockwise
-                    nop()
+                    game.rotateLeft()
+                    
                 elif event.key == K_SPACE:
-                    # drop the piece right away
-                    nop()
+                    game.hardDrop()
 
+        
         # update game state - V's
-
+        game.update()
         # draw things - S's
-
+        graphics.drawBoard(game.board)
+        graphics.drawStatus()
         FPSCLOCK.tick(FPS)
         
 ############

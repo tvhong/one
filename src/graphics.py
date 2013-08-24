@@ -9,16 +9,26 @@ COLORDELTA = 20
 WHITE       = (255, 255, 255)
 GRAY        = (185, 185, 185)
 BLACK       = (  0,   0,   0)
+
 RED         = (155,   0,   0)
 GREEN       = (  0, 155,   0)
 BLUE        = (  0,   0, 155)
 YELLOW      = (155, 155,   0)
+CYAN        = (  0, 155,   0)
+ORANGE      = (155,  77,   0)
+PURPLE      = ( 77,   0,  77)
 
 BORDERCOLOR = BLUE
 BGCOLOR = BLACK
 TEXTCOLOR = WHITE
 TEXTSHADOWCOLOR = GRAY
-COLORS      = (     BLUE,      GREEN,      RED,      YELLOW)
+COLORS      = {TYPE_I: CYAN,
+               TYPE_J: BLUE,
+               TYPE_L: ORANGE,
+               TYPE_O: YELLOW,
+               TYPE_S: GREEN,
+               TYPE_T: PURPLE,
+               TYPE_Z: RED}
 
 # POSITIONS & DIMENSIONS IN PIXEL
 BOXSIZE = 30
@@ -64,16 +74,18 @@ def darker (color, times=1):
     return tuple(newcolor)
 
 def drawBox (x, y, color):
-    x2 = x+BOXSIZE-1
-    y2 = y+BOXSIZE-1
+    x  = x+1
+    y  = y+1
+    x2 = x+BOXSIZE-2
+    y2 = y+BOXSIZE-2
     x3 = x+BOXMG
     y3 = y+BOXMG
     x4 = x2-BOXMG
     y4 = y2-BOXMG
-    pygame.draw.rect(SURFACE,darker(COLORS[color]),(x,y,BOXSIZE,BOXSIZE))
+    pygame.draw.polygon(SURFACE,darker(COLORS[color]),[(x,y),(x2,y),(x2,y2),(x,y2)])
     pygame.draw.polygon(SURFACE,lighter(COLORS[color],3),[(x,y),(x2,y),(x4,y3),(x3,y3)])
     pygame.draw.polygon(SURFACE,darker(COLORS[color],3),[(x3,y4),(x4,y4),(x2,y2),(x,y2)])
-    pygame.draw.rect(SURFACE,lighter(COLORS[color]),(x3,y3,BOXSIZE-BOXMG*2,BOXSIZE-BOXMG*2))
+    pygame.draw.polygon(SURFACE,lighter(COLORS[color]),[(x3,y3),(x4,y3),(x4,y4),(x3,y4)])
 
 def toPixel (col, row):
     return (BOARDX+col*BOXSIZE,BOARDY+row*BOXSIZE)
@@ -89,15 +101,17 @@ def drawBoard (board):
                 assert pos[1] >= BOARDY
                 assert pos[1] <= BOARDY+BOARDHEIGHT
                 
-                drawBox(pos[0],pos[1],2)
+                drawBox(pos[0],pos[1],board[row][col])
     return
 
-def drawNextPiece (piece,pix):
-    return ###
-    #boxList = piece.boxes
-    #for x in range(PATTERNSIZE):
-    #    for y in range(PATTERNSIZE):
-            
+def drawPiece (piece,pos=None):
+    if (pos==None):
+        pos = toPixel(box[0],box[1])
+    for box in piece.getBoxes():
+        drawBox(pos[0],pos[1],piece.bType)
+
+def drawNextPiece (nextPiece):
+    drawPiece (nextPiece,(NEXTPIECEX,NEXTPIECEY))
 
 def drawStatus (score,level):
     # draw the score text
@@ -111,5 +125,3 @@ def drawStatus (score,level):
     levelRect = levelSurf.get_rect()
     levelRect.topleft = (LEVELX, LEVELY)
     SURFACE.blit(levelSurf, levelRect)
-    
-    
