@@ -1,74 +1,56 @@
-import pygame, random, Piece
+import pygame, random, time
+import Piece
 from pygame.locals import *
 from gameconstants import *
 
 # block direction constants
-DIR_UP, DIR_RIGHT, DIR_DOWN, DIR_LEFT = range(4)
 CMD_ROTATE_R, CMD_ROTATE_L, CMD_MOVE_R, CMD_MOVE_L = range(4)
-
-# blockShapes[7 TYPES][4 rotations][PATTERNSIZE rows][PATTERNSIZE cols]
-blockShapes = [[[[0]*PATTERNSIZE]*PATTERNSIZE]*4]*TYPES;
-blockShapes[TYPE_L][DIR_UP] = [
-                [1,0,0,0],
-                [1,0,0,0],
-                [1,1,0,0],
-                [0,0,0,0]];
-blockShapes[TYPE_L][DIR_RIGHT] = [
-                [0,0,0,0],
-                [1,1,1,0],
-                [1,0,0,0],
-                [0,0,0,0]];
-blockShapes[TYPE_L][DIR_DOWN] = [
-                [1,1,0,0],
-                [0,1,0,0],
-                [0,1,0,0],
-                [0,0,0,0]];
-blockShapes[TYPE_L][DIR_LEFT] = [
-                [0,0,0,0],
-                [0,0,1,0],
-                [1,1,1,0],
-                [0,0,0,0]];
-
-blockShapes[TYPE_J][DIR_UP] = [
-                [0,1,0,0],
-                [0,1,0,0],
-                [1,1,0,0],
-                [0,0,0,0]];
-blockShapes[TYPE_J][DIR_RIGHT] = [
-                [0,0,0,0],
-                [1,0,0,0],
-                [1,1,1,0],
-                [0,0,0,0]];
-blockShapes[TYPE_J][DIR_DOWN] = [
-                [1,1,0,0],
-                [1,0,0,0],
-                [1,0,0,0],
-                [0,0,0,0]];
-blockShapes[TYPE_J][DIR_LEFT] = [
-                [0,0,0,0],
-                [1,1,1,0],
-                [0,0,1,0],
-                [0,0,0,0]];
-# TODO: insert more patterns
-
-level = 1
-interval = 90   # should make a function to change
+OCCUPIED = 1
 PENDING_MAX = 50  # max number of elements in pendingPieces
 PENDING_MIN = 4   # min number of elements in pendingPieces before renewing
+SOFT_DROP_INC = 10  # fallingTime offset when softdrop
 
-# TODO: need to check line eaten 
-'''
-TODO: bring this somewhere else
-if len(fallingPieces) == 0:
-    fallingPieces.append(_generateNewPiece())
-    return
-'''
-def init():
+def start():
     global board, pendingPieces, fallingPieces, staticPieces
+    global level, fallingTime, nextLevelScore, score
     board = [[BLANK]*BOARDROWS for i in range(BOARDCOLS)]
     pendingPieces = [random.randrange(TYPES) for i in range(PENDING_MAX)]
     fallingPieces = []
     staticPieces = []
+    level = 1
+    fallingTime = _getFallingTime(level)
+    nextLevelScore = _getNextLvlScore(level)
+    score = 0
+
+def update():
+    global board, pendingPieces, fallingPieces, staticPieces
+    global level, fallingTime, nextLevelScore, score
+    # init static variable
+    if oldTime not in update.__dict__: update.oldTime = int(time.time() * 1000)
+
+    newtime = int(time.time() * 1000)
+    # time to move down
+    if (update.oldtime - newTime) > fallingTime:
+        moveDown()
+        # check if any line is eaten
+        while True:
+            lines = _removeEatenLines()
+            if len(lines) > 0:
+                # Call main.lineEaten() here
+                _calculateScore(lines)
+                if score >= nextLevelScore:
+                    levelUp()
+                drop();
+            if len(lines) == 0: break;
+        # make sure we have new pieces
+        if len(fallingPieces) == 0:
+            fallingPieces.append(_generateNewPiece())
+
+def levelUp():
+    global level, fallingTime, nextLevelScore
+    level += 1
+    fallingTime = _getFallingTime(level)
+    nextLevelScore = _getNextLvlScore(level)
 
 def getPieces():
     return fallingPieces + staticPieces
@@ -85,18 +67,24 @@ def moveRight():
 def moveLeft():
     _movePiece(CMD_MOVE_L)
 
+def softDrop():
+    global softDrop     #TODO: do I need this?
+    if not softDrop:
+        softDrop = True
+        fallingTime -= SOFT_DROP_INC
+
+def stopSoftDrop():
+    global softDrop     #TODO: again, do I need this?
+    if softDrop:
+        softDrop = False
+        fallingTime += SOFT_DROP_INC
+
 def hardDrop():
-    '''Handle a hard drop (spacebar)'''
     global fallingPieces
     while (len(fallingPieces) > 0):
         moveDown()
 
 def moveDown():
-    '''
-    Move the falling pieces down by distance
-    If a line is eaten, then this will inform main.lineEaten([eaten lines])
-    If a new Piece is generated after this
-    '''
     global board, pendingPieces, fallingPieces, staticPieces
     fallingPieces.sort(cmp=_cmp, reverse=True)  # order of decending y
     tmpList = []
@@ -105,7 +93,7 @@ def moveDown():
         if (_checkCollision(p1)):
             staticPieces.append(p)
             for x,y in p.boxes:
-                board[x][y] = 1
+                board[x][y] = OCCUPIED
         else:
             tmpList.append(p1)
     fallingPieces = tmpList
@@ -113,6 +101,37 @@ def moveDown():
 ########################################################################
 ### Helper functions
 ########################################################################
+
+def _getFallingTime(level):
+    return 100 - level * 5; # TODO: need a better function
+
+def _getNextLvlScore(level):
+    return level*1000;  # TODO: need a better function
+
+def _removeEatenLines():
+    '''only check the static pieces'''
+    eateinLines = []
+    for y in range(BOARDROWS):
+        eaten = True
+        for x in range(BOARDCOLS):
+            if board[x][y] == BLANK: eaten = False
+        if eaten:
+            eatenLines.append(y)
+            # clear the row in board
+            for x in range(BOARDCOLS): board[x][y] = BLANK
+            # clear the row in staticPieces
+            for p in staticPieces[:]:
+                ptop, pbot = p.split()
+                if (ptop,pbot) == (None,None):
+                    continue
+                staticPieces.remove(p)
+                if ptop != None: fallingPieces.append(ptop)
+                if pbot != None: staticPieces.append(pbot)
+    return eatenLines
+
+def _calculateScore(eatenLines):
+    return len(eatenLines) * 100
+
 
 def _checkCollision(piece):
     '''return true if collide'''

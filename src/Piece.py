@@ -1,7 +1,54 @@
+from gameconstants import *
+
+# blockShapes[7 TYPES][4 rotations][PATTERNSIZE rows][PATTERNSIZE cols]
+#blockShapes = [[[[0]*PATTERNSIZE]*PATTERNSIZE]*4]*TYPES;
+blockShapes = [[[[0 for h in range(PATTERNSIZE)] for k in range(PATTERNSIZE)] for j in range(4)] for i in range(TYPES)]
+blockShapes[TYPE_L][DIR_UP] = [
+                [1,0,0,0],
+                [1,0,0,0],
+                [1,1,0,0],
+                [0,0,0,0]];
+blockShapes[TYPE_L][DIR_RIGHT] = [
+                [0,0,0,0],
+                [1,1,1,0],
+                [1,0,0,0],
+                [0,0,0,0]];
+blockShapes[TYPE_L][DIR_DOWN] = [
+                [1,1,0,0],
+                [0,1,0,0],
+                [0,1,0,0],
+                [0,0,0,0]];
+blockShapes[TYPE_L][DIR_LEFT] = [
+                [0,0,0,0],
+                [0,0,1,0],
+                [1,1,1,0],
+                [0,0,0,0]];
+
+blockShapes[TYPE_J][DIR_UP] = [
+                [0,1,0,0],
+                [0,1,0,0],
+                [1,1,0,0],
+                [0,0,0,0]];
+blockShapes[TYPE_J][DIR_RIGHT] = [
+                [0,0,0,0],
+                [1,0,0,0],
+                [1,1,1,0],
+                [0,0,0,0]];
+blockShapes[TYPE_J][DIR_DOWN] = [
+                [1,1,0,0],
+                [1,0,0,0],
+                [1,0,0,0],
+                [0,0,0,0]];
+blockShapes[TYPE_J][DIR_LEFT] = [
+                [0,0,0,0],
+                [1,1,1,0],
+                [0,0,1,0],
+                [0,0,0,0]];
+# TODO: insert more patterns
+
 class Piece:
     """
     Piece(bType, x, y): return Piece
-    self.splitted is used for breaking up pieces only
     invariant: boxes will be ordered by min y first
     """
     def __init__(self, bType, x, y, direction=DIR_UP, splitted=False):
@@ -58,7 +105,7 @@ class Piece:
 
     def split(self, x, y):
         """
-        Piece.split() : return highPiece, lowPiece or None
+        Piece.split() : return highPiece, lowPiece or None, None
         """
         if (x, y) in self.boxes:
             highPiece = Piece(self.bType, self.x, self.y, splitted=True)    # x & y aren't important here
@@ -66,6 +113,7 @@ class Piece:
             highPiece.boxes = [b for b in self.boxes if b[1] < y]
             lowPiece.boxes = [b for b in self.boxes if b[1] > y]
             return highPiece, lowPiece
+        return None, None
 
     def getBoxes(self):
         return self.boxes
@@ -77,6 +125,6 @@ class Piece:
                 if (self.x + j, self.y + i) in self.boxes:
                     rep += "1 "
                 else:
-                    rep +="0 "
+                    rep += "0 "
             rep += "\n"
         return rep
