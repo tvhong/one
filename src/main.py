@@ -85,6 +85,7 @@ def startGame():
         game.update()
         # draw things - S's
         print 'yyy'
+        graphics.reset()
         graphics.drawBoard(game.board)
         graphics.drawStatus(game.score,game.level)
         FPSCLOCK.tick(FPS)

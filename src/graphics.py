@@ -58,6 +58,9 @@ def init (surface):
     BASICFONT = pygame.font.Font('freesansbold.ttf', 18)
     BIGFONT = pygame.font.Font('freesansbold.ttf', 100)
 
+def reset ():
+    SURFACE.fill(BGCOLOR)
+
 def lighter (color, times=1):
     assert times>=1
     newcolor = list(color)

@@ -45,6 +45,7 @@ def main():
             
         print 'number of pieces: ',len(game.getPieces())
         #graphics.drawBoard(board)
+        graphics.reset()
         graphics.drawStatus(1000,20)
         pygame.display.update()
         game.update()
