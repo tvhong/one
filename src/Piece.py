@@ -67,8 +67,8 @@ class Piece:
         for i in range(4):      #i-correspond_to-y
             for j in range(4):      #j-correspond_to-x
                 #if blockShapes[bType][DIR_UP][i][j] != 0:
-                if blockShapes[bType][direction][j][i] != 0:
-                    boxes.append((x+i, y+j))
+                if blockShapes[bType][direction][i][j] != 0:
+                    boxes.append((x+j, y+i))
         return boxes
 
     def rotateRight(self):
@@ -97,7 +97,7 @@ class Piece:
         if not self.splitted:
             return Piece(self.bType, self.x - 1, self.y, self.direction)
 
-    def moveDown(self, speed):
+    def moveDown(self):
         """
         Piece.moveDown(): return Piece
         """
@@ -119,7 +119,7 @@ class Piece:
         return self.boxes
 
     def __str__(self):
-        rep = ""
+        rep = "x = "+ str(self.x)+ ", y = "+str(self.y)+', type = '+str(self.bType)+'\n'
         for i in range(4):      # i-correspond_to-y
             for j in range(4):  # j-correspond_to-x
                 if (self.x + j, self.y + i) in self.boxes:

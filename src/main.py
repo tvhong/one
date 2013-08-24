@@ -15,9 +15,8 @@ def main():
     running = False
     # show main menu or sth
 
-    game.init()
+    game.start()
     startGame()
-    
     # by now, the game is over
     terminate()
 
@@ -32,7 +31,7 @@ def nop():
 
 def terminate():
     pygame.quit()
-    sys.quit()
+    #sys.quit()
 
 def pauseGame():
     # S's TODO
@@ -42,7 +41,7 @@ def pauseGame():
 def startGame():
     # init game board here
     running = True
-    lastMoveDown = time.time()
+    print 'xxx'
     while running == True:
         # check game over / won - V's
         if game.checkGameEnd():
@@ -51,7 +50,7 @@ def startGame():
         
         # check events - S's & V's
         for event in pygame.event.get(QUIT):
-            terminate()
+            return
 
         for event in pygame.event.get():
             if event.type == KEYUP: # check key release
@@ -85,8 +84,9 @@ def startGame():
         # update game state - V's
         game.update()
         # draw things - S's
+        print 'yyy'
         graphics.drawBoard(game.board)
-        graphics.drawStatus()
+        graphics.drawStatus(game.score,game.level)
         FPSCLOCK.tick(FPS)
         
 ############

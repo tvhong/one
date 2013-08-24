@@ -1,4 +1,4 @@
-import graphics,pygame,sys
+import graphics,pygame,sys,game
 from pygame.locals import *
 from gameconstants import *
 FPS = 30
@@ -23,13 +23,25 @@ def main():
     board[6][5] = TYPE_I
     board[7][5] = TYPE_I
     board[8][5] = TYPE_I
+
+    game.start()
     
     while (True):
+        if game.checkGameEnd():
+            print 'the game has ended!!'
+            FPSCLOCK.tick(FPS)
+            continue
         for event in pygame.event.get(QUIT):
             terminate()
-        graphics.drawBoard(board)
+        for piece in game.getPieces():
+            # print 'drawing a piece!!!'
+            print piece
+            graphics.drawPiece(piece)
+        print 'number of pieces: ',len(game.getPieces())
+        #graphics.drawBoard(board)
         graphics.drawStatus(1000,20)
         pygame.display.update()
+        game.update()
         FPSCLOCK.tick(FPS)
     
 def terminate():

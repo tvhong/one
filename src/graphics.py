@@ -73,7 +73,7 @@ def darker (color, times=1):
             newcolor[i] = max(newcolor[i]-COLORDELTA,0)
     return tuple(newcolor)
 
-def drawBox (x, y, color):
+def drawBox ((x, y), color):
     x  = x+1
     y  = y+1
     x2 = x+BOXSIZE-2
@@ -101,14 +101,18 @@ def drawBoard (board):
                 assert pos[1] >= BOARDY
                 assert pos[1] <= BOARDY+BOARDHEIGHT
                 
-                drawBox(pos[0],pos[1],board[row][col])
+                drawBox(pos,board[row][col])
     return
 
 def drawPiece (piece,pos=None):
     if (pos==None):
-        pos = toPixel(box[0],box[1])
+        pos = toPixel(piece.x,piece.y)
+
+    #print 'drawing a piece !!!'
     for box in piece.getBoxes():
-        drawBox(pos[0],pos[1],piece.bType)
+        bPos = toPixel(box[0],box[1])
+        drawBox(bPos,piece.bType)
+        #print 'drawing a box at ',bPos
 
 def drawNextPiece (nextPiece):
     drawPiece (nextPiece,(NEXTPIECEX,NEXTPIECEY))

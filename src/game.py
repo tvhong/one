@@ -1,5 +1,5 @@
 import pygame, random, time
-import Piece
+from Piece import Piece
 from pygame.locals import *
 from gameconstants import *
 
@@ -13,7 +13,7 @@ SOFT_DROP_INC = 10  # fallingTime offset when softdrop
 def start():
     global board, pendingPieces, fallingPieces, staticPieces
     global level, fallingTime, nextLevelScore, score
-    board = [[BLANK]*BOARDROWS for i in range(BOARDCOLS)]
+    board = [[BLANK]*BOARDCOLS for i in range(BOARDROWS)]
     pendingPieces = [random.randrange(TYPES) for i in range(PENDING_MAX)]
     fallingPieces = []
     staticPieces = []
@@ -21,16 +21,13 @@ def start():
     fallingTime = _getFallingTime(level)
     nextLevelScore = _getNextLvlScore(level)
     score = 0
+    update.oldTime = int(time.time() * 1000)
 
 def update():
-    global board, pendingPieces, fallingPieces, staticPieces
-    global level, fallingTime, nextLevelScore, score
-    # init static variable
-    if oldTime not in update.__dict__: update.oldTime = int(time.time() * 1000)
-
-    newtime = int(time.time() * 1000)
+    newTime = int(time.time() * 1000)
     # time to move down
-    if (update.oldtime - newTime) > fallingTime:
+    if (newTime - update.oldTime) > fallingTime:
+        #print 'updating !!!!'
         moveDown()
         # check if any line is eaten
         while True:
@@ -43,6 +40,7 @@ def update():
             drop();
         # make sure we have new pieces
         if len(fallingPieces) == 0:
+            print 'making a new piece !!!! so fun!!!'
             fallingPieces.append(_generateNewPiece())
 
 def levelUp():
@@ -92,14 +90,15 @@ def moveDown():
         if (_checkCollision(pDown)):
             staticPieces.append(p)
             for x,y in p.boxes:
-                board[x][y] = OCCUPIED
+                board[y][x] = OCCUPIED
         else:
             tmpList.append(pDown)
+            #print 'dropping one piece down!!!'
     fallingPieces = tmpList
 
 def checkGameEnd():
     for x in range(BOARDCOLS):
-        if board[x][0] != BLANK:
+        if board[0][x] != BLANK:
             return True
     return False
 
@@ -108,22 +107,23 @@ def checkGameEnd():
 ########################################################################
 
 def _getFallingTime(level):
-    return 100 - level * 5; # TODO: need a better function
+    return 1000 - level * 50; # TODO: need a better function
+    # 1st level: 950
 
 def _getNextLvlScore(level):
     return level*1000;  # TODO: need a better function
 
 def _removeEatenLines():
     '''only check the static pieces'''
-    eateinLines = []
+    eatenLines = []
     for y in range(BOARDROWS):
         eaten = True
         for x in range(BOARDCOLS):
-            if board[x][y] == BLANK: eaten = False
+            if board[y][x] == BLANK: eaten = False
         if eaten:
             eatenLines.append(y)
             # clear the row in board
-            for x in range(BOARDCOLS): board[x][y] = BLANK
+            for x in range(BOARDCOLS): board[y][x] = BLANK
             # clear the row in staticPieces
             for p in staticPieces[:]:
                 ptop, pbot = p.split()
@@ -140,12 +140,15 @@ def _calculateScore(eatenLines):
 
 def _checkCollision(piece):
     '''return true if collide'''
+    #print 'checking collision!!!'
     global board
     if piece == None:
         return True
     for x, y in piece.boxes:
-        if board[x][y] != 0:
+        if x>=BOARDCOLS or x<0 or y>=BOARDROWS:
             return True
+        elif board[y][x] != BLANK:
+            return True        
     return False
 
 def _movePiece(command):
@@ -165,10 +168,14 @@ def _movePiece(command):
         fallingPieces = [newPiece]
 
 def _generateNewPiece():
+    global pendingPieces
     if (len(pendingPieces) < PENDING_MIN):
         pendingPieces = pendingPieces + [random.randrange(TYPES) \
                         for i in range(PENDING_MAX - PENDING_MIN)]
-    return Piece(pendingPieces.pop(0), (BOARDCOLS - PATTERNSIZE)/2, -3)
+    #return Piece(pendingPieces.pop(0), (BOARDCOLS - PATTERNSIZE)/2, -3)
+    #UNCOMMENT ME PLEASE!!!
+    print 'im the real new piece here! u imposters!'
+    return Piece(TYPE_L, (BOARDCOLS - PATTERNSIZE)/2, -3)
     # bad bad bad, -3 is bad
 
 def _cmp(piece1, piece2):
