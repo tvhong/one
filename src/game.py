@@ -35,13 +35,12 @@ def update():
         # check if any line is eaten
         while True:
             lines = _removeEatenLines()
-            if len(lines) > 0:
-                # Call main.lineEaten() here
-                _calculateScore(lines)
-                if score >= nextLevelScore:
-                    levelUp()
-                drop();
             if len(lines) == 0: break;
+            # Call main.lineEaten() here
+            score += _calculateScore(lines)
+            if score >= nextLevelScore:
+                levelUp()
+            drop();
         # make sure we have new pieces
         if len(fallingPieces) == 0:
             fallingPieces.append(_generateNewPiece())
@@ -89,13 +88,13 @@ def moveDown():
     fallingPieces.sort(cmp=_cmp, reverse=True)  # order of decending y
     tmpList = []
     for p in fallingPieces:
-        p1 = p.moveDown()
-        if (_checkCollision(p1)):
+        pDown = p.moveDown()
+        if (_checkCollision(pDown)):
             staticPieces.append(p)
             for x,y in p.boxes:
                 board[x][y] = OCCUPIED
         else:
-            tmpList.append(p1)
+            tmpList.append(pDown)
     fallingPieces = tmpList
 
 def checkGameEnd():
