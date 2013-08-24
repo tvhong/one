@@ -98,6 +98,12 @@ def moveDown():
             tmpList.append(p1)
     fallingPieces = tmpList
 
+def checkGameEnd():
+    for x in range(BOARDCOLS):
+        if board[x][0] != BLANK:
+            return True
+    return False
+
 ########################################################################
 ### Helper functions
 ########################################################################
