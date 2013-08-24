@@ -27,6 +27,7 @@ def update():
     newTime = int(time.time() * 1000)
     # time to move down
     if (newTime - update.oldTime) > fallingTime:
+        update.oldTime = newTime
         #print 'updating !!!!'
         moveDown()
         # check if any line is eaten
@@ -145,9 +146,11 @@ def _checkCollision(piece):
     if piece == None:
         return True
     for x, y in piece.boxes:
+        if y < 0:
+            return False
         if x>=BOARDCOLS or x<0 or y>=BOARDROWS:
             return True
-        elif board[y][x] != BLANK:
+        if board[y][x] != BLANK:
             return True        
     return False
 

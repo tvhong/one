@@ -37,6 +37,12 @@ def main():
             # print 'drawing a piece!!!'
             print piece
             graphics.drawPiece(piece)
+
+        for y in range(BOARDROWS):
+            for x in range(BOARDCOLS):
+                print game.board[y][x],
+            print ''
+            
         print 'number of pieces: ',len(game.getPieces())
         #graphics.drawBoard(board)
         graphics.drawStatus(1000,20)
