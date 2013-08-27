@@ -215,11 +215,14 @@ class Piece:
         """
         return Piece(self.bType, self.x, self.y + 1, self.direction, self.splitted)
 
-    def split(self, x, y):
+    def split(self, y):
         """
         Piece.split() : return highPiece, lowPiece or None, None
         """
-        if (x, y) in self.boxes:
+        affected = False  # if this piece is affected by this split
+        for b in self.boxes:
+            if b[1] == y: affected = True
+        if affected:
             highBoxes = [b for b in self.boxes if b[1] < y]
             # x, y & direction doesn't matter for splitted pieces
             highPiece = Piece(self.bType, self.x, self.y, self.direction, True, highBoxes)

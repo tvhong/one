@@ -8,7 +8,6 @@ CMD_ROTATE_R, CMD_ROTATE_L, CMD_MOVE_R, CMD_MOVE_L = range(4)
 OCCUPIED = 1
 PENDING_MAX = 50  # max number of elements in pendings
 PENDING_MIN = 4   # min number of elements in pendings before renewing
-SOFT_DROP_INC = 100  # fallingTime offset when softdrop
 
 def start():
     global board, pendings, fallingPieces, staticPieces, softDroping
@@ -27,22 +26,31 @@ def start():
     softDroping = False
     update.oldTime = int(time.time() * 1000)
 
+    #DEBUGGING:
+    for x in range(BOARDCOLS):
+        board[15][x] = OCCUPIED
+
 def update():
+    global fallingTime, score, nextLevelScore, fallingPieces
+
     newTime = int(time.time() * 1000)
     # time to move down
     if (newTime - update.oldTime) > fallingTime:
-        update.oldTime = newTime
         #print 'updating !!!!'
+        update.oldTime = newTime
         moveDown()
+
         # check if any line is eaten
         while True:
             lines = _removeEatenLines()
+            print lines;
             if len(lines) == 0: break;
             # Call main.lineEaten() here
             score += _calculateScore(lines)
             if score >= nextLevelScore:
                 levelUp()
-            drop();
+            hardDrop();
+
         # make sure we have new pieces
         if len(fallingPieces) == 0:
             #print 'making a new piece !!!! so fun!!!'
@@ -73,13 +81,13 @@ def softDrop():
     global fallingTime, softDroping     #TODO: do I need this?
     if not softDroping:
         softDroping = True
-        fallingTime -= SOFT_DROP_INC
+        fallingTime /= 2
 
 def stopSoftDrop():
     global fallingTime, softDroping     #TODO: again, do I need this?
     if softDroping:
         softDroping = False
-        fallingTime += SOFT_DROP_INC
+        fallingTime *= 2
 
 def hardDrop():
     global fallingPieces
@@ -120,6 +128,7 @@ def _getNextLvlScore(level):
 
 def _removeEatenLines():
     '''only check the static pieces'''
+    global board, staticPieces
     eatenLines = []
     for y in range(BOARDROWS):
         eaten = True
@@ -131,12 +140,15 @@ def _removeEatenLines():
             for x in range(BOARDCOLS): board[y][x] = BLANK
             # clear the row in staticPieces
             for p in staticPieces[:]:
-                ptop, pbot = p.split()
+                ptop, pbot = p.split(y)
                 if (ptop,pbot) == (None,None):
                     continue
+                # DEBUGGING
+                print ptop
+                print pbot
                 staticPieces.remove(p)
-                if ptop != None: fallingPieces.append(ptop)
-                if pbot != None: staticPieces.append(pbot)
+                if (ptop != None and len(ptop.boxes) > 0): fallingPieces.append(ptop)
+                if (pbot != None and len(pbot.boxes) > 0): staticPieces.append(pbot)
     return eatenLines
 
 def _calculateScore(eatenLines):
@@ -185,8 +197,9 @@ def _generateNewPiece():
     return Piece(pending[0], (BOARDCOLS - PATTERNSIZE)/2, 0, pending[1])
 
 def _cmp(piece1, piece2):
-    y1 = piece1.boxes[len(piece1.boxes)]    # get the lowest y
-    y2 = piece2.boxes[len(piece2.boxes)]
+    # TODO: error here
+    y1 = piece1.boxes[len(piece1.boxes)-1][1]    # get the lowest y
+    y2 = piece2.boxes[len(piece2.boxes)-1][1]
     if (y1 > y2):
         return 1
     if (y1 < y2):

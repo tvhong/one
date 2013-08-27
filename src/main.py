@@ -74,7 +74,7 @@ def startGame():
                     game.rotateRight()
                     
                 elif (event.key in (K_z, K_COMMA)):
-                    game.rotateRight()
+                    game.rotateLeft()
 
                 elif (event.key in (K_DOWN, K_s)):
                     game.softDrop()
