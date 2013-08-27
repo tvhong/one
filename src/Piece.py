@@ -4,46 +4,46 @@ from gameconstants import *
 #blockShapes = [[[[0]*PATTERNSIZE]*PATTERNSIZE]*4]*TYPES;
 blockShapes = [[[[0 for h in range(PATTERNSIZE)] for k in range(PATTERNSIZE)] for j in range(4)] for i in range(TYPES)]
 blockShapes[TYPE_L][DIR_UP] = [
+                [0,0,0,0],
                 [1,0,0,0],
                 [1,0,0,0],
-                [1,1,0,0],
-                [0,0,0,0]];
+                [1,1,0,0]];
 blockShapes[TYPE_L][DIR_RIGHT] = [
                 [0,0,0,0],
+                [0,0,0,0],
                 [1,1,1,0],
-                [1,0,0,0],
-                [0,0,0,0]];
+                [1,0,0,0]];
 blockShapes[TYPE_L][DIR_DOWN] = [
+                [0,0,0,0],
                 [1,1,0,0],
                 [0,1,0,0],
-                [0,1,0,0],
-                [0,0,0,0]];
+                [0,1,0,0]];
 blockShapes[TYPE_L][DIR_LEFT] = [
                 [0,0,0,0],
+                [0,0,0,0],
                 [0,0,1,0],
-                [1,1,1,0],
-                [0,0,0,0]];
+                [1,1,1,0]];
 
 blockShapes[TYPE_J][DIR_UP] = [
+                [0,0,0,0],
                 [0,1,0,0],
                 [0,1,0,0],
-                [1,1,0,0],
-                [0,0,0,0]];
+                [1,1,0,0]];
 blockShapes[TYPE_J][DIR_RIGHT] = [
                 [0,0,0,0],
+                [0,0,0,0],
                 [1,0,0,0],
-                [1,1,1,0],
-                [0,0,0,0]];
+                [1,1,1,0]];
 blockShapes[TYPE_J][DIR_DOWN] = [
+                [0,0,0,0],
                 [1,1,0,0],
                 [1,0,0,0],
-                [1,0,0,0],
-                [0,0,0,0]];
+                [1,0,0,0]];
 blockShapes[TYPE_J][DIR_LEFT] = [
                 [0,0,0,0],
+                [0,0,0,0],
                 [1,1,1,0],
-                [0,0,1,0],
-                [0,0,0,0]];
+                [0,0,1,0]];
 # TODO: insert more patterns
 
 class Piece:

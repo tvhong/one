@@ -6,15 +6,15 @@ from gameconstants import *
 # block direction constants
 CMD_ROTATE_R, CMD_ROTATE_L, CMD_MOVE_R, CMD_MOVE_L = range(4)
 OCCUPIED = 1
-PENDING_MAX = 50  # max number of elements in pendingPieces
-PENDING_MIN = 4   # min number of elements in pendingPieces before renewing
+PENDING_MAX = 50  # max number of elements in pendingTypes
+PENDING_MIN = 4   # min number of elements in pendingTypes before renewing
 SOFT_DROP_INC = 10  # fallingTime offset when softdrop
 
 def start():
-    global board, pendingPieces, fallingPieces, staticPieces
+    global board, pendingTypes, fallingPieces, staticPieces
     global level, fallingTime, nextLevelScore, score
     board = [[BLANK]*BOARDCOLS for i in range(BOARDROWS)]
-    pendingPieces = [random.randrange(TYPES) for i in range(PENDING_MAX)]
+    pendingTypes = [random.randrange(TYPES) for i in range(PENDING_MAX)]
     fallingPieces = []
     staticPieces = []
     level = 1
@@ -83,7 +83,7 @@ def hardDrop():
         moveDown()
 
 def moveDown():
-    global board, pendingPieces, fallingPieces, staticPieces
+    global board, pendingTypes, fallingPieces, staticPieces
     fallingPieces.sort(cmp=_cmp, reverse=True)  # order of decending y
     tmpList = []
     for p in fallingPieces:
@@ -99,7 +99,7 @@ def moveDown():
 
 def checkGameEnd():
     for x in range(BOARDCOLS):
-        if board[0][x] != BLANK:
+        if board[PATTERNSIZE-1][x] != BLANK:
             return True
     return False
 
@@ -146,8 +146,6 @@ def _checkCollision(piece):
     if piece == None:
         return True
     for x, y in piece.boxes:
-        if y < 0:
-            return False
         if x>=BOARDCOLS or x<0 or y>=BOARDROWS:
             return True
         if board[y][x] != BLANK:
@@ -171,15 +169,14 @@ def _movePiece(command):
         fallingPieces = [newPiece]
 
 def _generateNewPiece():
-    global pendingPieces
-    if (len(pendingPieces) < PENDING_MIN):
-        pendingPieces = pendingPieces + [random.randrange(TYPES) \
+    global pendingTypes
+    if (len(pendingTypes) < PENDING_MIN):
+        pendingTypes = pendingTypes + [random.randrange(TYPES) \
                         for i in range(PENDING_MAX - PENDING_MIN)]
-    #return Piece(pendingPieces.pop(0), (BOARDCOLS - PATTERNSIZE)/2, -3)
+    #return Piece(pendingTypes.pop(0), (BOARDCOLS - PATTERNSIZE)/2, -3)
     #UNCOMMENT ME PLEASE!!!
     print 'im the real new piece here! u imposters!'
-    return Piece(TYPE_L, (BOARDCOLS - PATTERNSIZE)/2, -3)
-    # bad bad bad, -3 is bad
+    return Piece(TYPE_L, (BOARDCOLS - PATTERNSIZE)/2, 0)
 
 def _cmp(piece1, piece2):
     y1 = piece1.boxes[len(piece1.boxes)]    # get the lowest y
