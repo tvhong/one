@@ -33,11 +33,6 @@ def main():
             continue
         for event in pygame.event.get(QUIT):
             terminate()
-        for piece in game.getPieces():
-            # print 'drawing a piece!!!'
-            print piece
-            graphics.drawPiece(piece)
-
         for y in range(BOARDROWS):
             for x in range(BOARDCOLS):
                 print game.board[y][x],
@@ -46,6 +41,10 @@ def main():
         print 'number of pieces: ',len(game.getPieces())
         #graphics.drawBoard(board)
         graphics.reset()
+        for piece in game.getPieces():
+            # print 'drawing a piece!!!'
+            print piece
+            graphics.drawPiece(piece)
         graphics.drawStatus(1000,20)
         pygame.display.update()
         game.update()
