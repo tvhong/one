@@ -8,20 +8,23 @@ CMD_ROTATE_R, CMD_ROTATE_L, CMD_MOVE_R, CMD_MOVE_L = range(4)
 OCCUPIED = 1
 PENDING_MAX = 50  # max number of elements in pendings
 PENDING_MIN = 4   # min number of elements in pendings before renewing
-SOFT_DROP_INC = 10  # fallingTime offset when softdrop
+SOFT_DROP_INC = 100  # fallingTime offset when softdrop
 
 def start():
-    global board, pendings, fallingPieces, staticPieces
+    global board, pendings, fallingPieces, staticPieces, softDroping
     global level, fallingTime, nextLevelScore, score
     board = [[BLANK]*BOARDCOLS for i in range(BOARDROWS)]
     pendings = [(random.randrange(TYPES), random.randrange(4)) \
             for i in range(PENDING_MAX)]
     fallingPieces = []
     staticPieces = []
+
     level = 1
     fallingTime = _getFallingTime(level)
     nextLevelScore = _getNextLvlScore(level)
     score = 0
+
+    softDroping = False
     update.oldTime = int(time.time() * 1000)
 
 def update():
@@ -42,7 +45,7 @@ def update():
             drop();
         # make sure we have new pieces
         if len(fallingPieces) == 0:
-            print 'making a new piece !!!! so fun!!!'
+            #print 'making a new piece !!!! so fun!!!'
             fallingPieces.append(_generateNewPiece())
 
 def levelUp():
@@ -67,15 +70,15 @@ def moveLeft():
     _movePiece(CMD_MOVE_L)
 
 def softDrop():
-    global softDrop     #TODO: do I need this?
-    if not softDrop:
-        softDrop = True
+    global fallingTime, softDroping     #TODO: do I need this?
+    if not softDroping:
+        softDroping = True
         fallingTime -= SOFT_DROP_INC
 
 def stopSoftDrop():
-    global softDrop     #TODO: again, do I need this?
-    if softDrop:
-        softDrop = False
+    global fallingTime, softDroping     #TODO: again, do I need this?
+    if softDroping:
+        softDroping = False
         fallingTime += SOFT_DROP_INC
 
 def hardDrop():
@@ -178,7 +181,7 @@ def _generateNewPiece():
 
     pending = pendings.pop(0);
     
-    print 'im the real new piece here! u imposters!'
+    #print 'im the real new piece here! u imposters!'
     return Piece(pending[0], (BOARDCOLS - PATTERNSIZE)/2, 0, pending[1])
 
 def _cmp(piece1, piece2):

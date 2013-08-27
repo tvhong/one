@@ -41,14 +41,11 @@ def pauseGame():
 def startGame():
     # init game board here
     running = True
-    print 'xxx'
     while running == True:
-        # check game over / won - V's
         if game.checkGameEnd():
-            # do something here: show scores, restart, give candies, whatever
+            # TODO: show scores, restart, give candies, whatever
             return
         
-        # check events - S's & V's
         for event in pygame.event.get(QUIT):
             return
 
@@ -57,37 +54,44 @@ def startGame():
                 if (event.key == K_p):
                     # pause here
                     pauseGame()
-                elif (event.key == K_LEFT or event.key == K_a):
+                elif (event.key in (K_LEFT, K_a)):
                     # stop moving left
                     nop()
-                elif (event.key == K_RIGHT or event.key == K_d):
+                elif (event.key in (K_RIGHT, K_d)):
                     # stop moving right
                     nop()
+                elif (event.key in (K_DOWN, K_s)):
+                    game.stopSoftDrop();
 
             elif event.type == KEYDOWN: # check key press
-                if (event.key == K_LEFT or event.key == K_a):
+                if (event.key in (K_LEFT, K_a)):
                     game.moveLeft()
                     
-                elif (event.key == K_RIGHT or event.key == K_d):
+                elif (event.key in (K_RIGHT, K_d)):
                     game.moveRight()
                     
-                elif (event.key == K_UP or event.key == K_w):
+                elif (event.key in (K_UP, K_w, K_x, K_PERIOD)):
                     game.rotateRight()
                     
-                elif (event.key == K_DOWN or event.key == K_s):
-                    game.rotateLeft()
+                elif (event.key in (K_z, K_COMMA)):
+                    game.rotateRight()
+
+                elif (event.key in (K_DOWN, K_s)):
+                    game.softDrop()
                     
                 elif event.key == K_SPACE:
                     game.hardDrop()
 
         
-        # update game state - V's
+        # update game state
         game.update()
-        # draw things - S's
-        print 'yyy'
+
+        # drawing
         graphics.reset()
-        graphics.drawBoard(game.board)
         graphics.drawStatus(game.score,game.level)
+        for piece in game.getPieces():
+            graphics.drawPiece(piece)
+        pygame.display.update()
         FPSCLOCK.tick(FPS)
         
 ############
