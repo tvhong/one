@@ -178,7 +178,7 @@ def _removeEatenLines():
     for y in range(BOARDROWS):
         eaten = True
         for x in range(BOARDCOLS):
-            if board[y][x] == BLANK: eaten = False
+            if board[y][x] != OCCUPIED_S: eaten = False
         if eaten:
             eatenLines.append(y)
             # clear the row in board
@@ -192,8 +192,14 @@ def _removeEatenLines():
                 print pbot
                 if pbot != p:
                     staticPieces.remove(p)
-                    if (ptop != None and len(ptop.boxes) > 0): fallingPieces.append(ptop)
-                    if (pbot != None and len(pbot.boxes) > 0): staticPieces.append(pbot)
+                    if ptop != None:
+                        assert len(ptop.boxes)>0
+                        fallingPieces.append(ptop)
+                        addToBoard(ptop,OCCUPIED_F)
+                    if pbot != None:
+                        assert len(pbot.boxes)>0
+                        staticPieces.append(pbot)
+                        addToBoard(pbot,OCCUPIED_S)
     return eatenLines
 
 def _calculateScore(eatenLines):
