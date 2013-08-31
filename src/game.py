@@ -133,14 +133,14 @@ def moveDown (piece):
         fallingPieces.remove(piece)
         staticPieces.append(piece)
         addToBoard(piece,OCCUPIED_S)
+        
+        if piece == currentPiece:
+            currentPiece = None
 
     else:
         if col==COL_FALLING:
             piece.moveUp()
         addToBoard(piece,OCCUPIED_F)
-
-    if piece == currentPiece and len(fallingPieces)!=1:
-        currentPiece = None
 
 def checkGameEnd():
     for x in range(BOARDCOLS):
@@ -175,14 +175,13 @@ def _removeEatenLines():
             # clear the row in staticPieces
             for p in staticPieces[:]:
                 ptop, pbot = p.split(y)
-                if (ptop,pbot) == (None,None):
-                    continue
-                # DEBUGGING
+                # DEBUGGING 
                 print ptop
                 print pbot
-                staticPieces.remove(p)
-                if (ptop != None and len(ptop.boxes) > 0): fallingPieces.append(ptop)
-                if (pbot != None and len(pbot.boxes) > 0): staticPieces.append(pbot)
+                if pbot != p:
+                    staticPieces.remove(p)
+                    if (ptop != None and len(ptop.boxes) > 0): fallingPieces.append(ptop)
+                    if (pbot != None and len(pbot.boxes) > 0): staticPieces.append(pbot)
     return eatenLines
 
 def _calculateScore(eatenLines):
