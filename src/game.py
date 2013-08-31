@@ -63,7 +63,7 @@ def update():
         # check if any line is eaten
         while True:
             lines = _removeEatenLines()
-            print lines;
+            # print lines;
             if len(lines) == 0: break;
             # Call main.lineEaten() here
             score += _calculateScore(lines)
