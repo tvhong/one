@@ -31,6 +31,7 @@ def nop():
     return
 
 def terminate():
+    game.f.close()
     pygame.quit()
     #sys.quit()
 
