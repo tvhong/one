@@ -185,13 +185,13 @@ class Piece:
 
     def rotateRight(self):
         if not self.splitted:
-            newDir = (self.direction + 1) % 4
-            return Piece(self.bType, self.x, self.y, newDir)
+            self.direction = (self.direction + 1) % 4
+            self.boxes = self._generateBoxes(self.bType, self.x, self.y, self.direction)
 
     def rotateLeft(self):
         if not self.splitted:
-            newDir = (self.direction - 1) % 4
-            return Piece(self.bType, self.x, self.y, newDir)
+            self.direction = (self.direction - 1) % 4
+            self.boxes = self._generateBoxes(self.bType, self.x, self.y, self.direction)
 
     def moveRight(self):
         """
@@ -199,7 +199,9 @@ class Piece:
         create a new Piece that is to the right of self
         """
         if not self.splitted:
-            return Piece(self.bType, self.x + 1, self.y, self.direction)
+            self.x += 1
+            newBoxes = [(b[0]+1, b[1]) for b in self.boxes]
+            self.boxes = newBoxes
 
     def moveLeft(self):
         """
@@ -207,13 +209,17 @@ class Piece:
         create a new Piece that is to the left of self
         """
         if not self.splitted:
-            return Piece(self.bType, self.x - 1, self.y, self.direction)
+            self.x -= 1
+            newBoxes = [(b[0]-1, b[1]) for b in self.boxes]
+            self.boxes = newBoxes
 
     def moveDown(self):
         """
         Piece.moveDown(): return Piece
         """
-        return Piece(self.bType, self.x, self.y + 1, self.direction, self.splitted)
+        self.y += 1
+        newBoxes = [(b[0], b[1]+1) for b in self.boxes]
+        self.boxes = newBoxes
 
     def split(self, y):
         """
