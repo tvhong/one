@@ -5,9 +5,20 @@ from gameconstants import *
 
 # block direction constants
 CMD_ROTATE_R, CMD_ROTATE_L, CMD_MOVE_R, CMD_MOVE_L = range(4)
-OCCUPIED = 1
+OCCUPIED_S = '1'
+OCCUPIED_F = '0'
+BLANK = ' '
 PENDING_MAX = 50  # max number of elements in pendings
 PENDING_MIN = 4   # min number of elements in pendings before renewing
+
+COL_STATIC  = 1
+COL_FALLING = 2
+COL_NONE    = 0
+
+REVERSE_CMD = {CMD_ROTATE_R:CMD_ROTATE_L,
+               CMD_ROTATE_L:CMD_ROTATE_R,
+               CMD_MOVE_R  :CMD_MOVE_L,
+               CMD_MOVE_L  :CMD_MOVE_R}
 
 def start():
     global board, pendings, fallingPieces, staticPieces, softDroping
@@ -31,17 +42,18 @@ def start():
 
     #DEBUGGING:
     for x in range(BOARDCOLS):
-        board[15][x] = OCCUPIED
+        board[15][x] = OCCUPIED_S
 
 def update():
     global fallingTime, score, nextLevelScore, fallingPieces
-    global controlling
+    global currentPiece
 
     newTime = int(time.time() * 1000)
     # time to move down
     if (newTime - update.oldTime) > fallingTime:
         #print 'updating !!!!'
         update.oldTime = newTime
+        
         moveDown()
 
         # check if any line is eaten
@@ -56,10 +68,19 @@ def update():
             hardDrop();
 
         # make sure we have new pieces
-        if len(fallingPieces) == 0:
+        if currentPiece == None:
             #print 'making a new piece !!!! so fun!!!'
-            fallingPieces.append(_generateNewPiece())
-            controlling = True
+            currentPiece = _generateNewPiece()
+            addToBoard(currentPiece)
+            fallingPieces.append(currentPiece)
+
+def addToBoard (piece, status=OCCUPIED_F):
+    for x,y in piece.boxes:
+        board[y][x] = status
+
+def removeFromBoard (piece):
+    for x,y in piece.boxes:
+        board[y][x] = BLANK
 
 def levelUp():
     global level, fallingTime, nextLevelScore
@@ -97,24 +118,28 @@ def stopSoftDrop():
 def hardDrop():
     global fallingPieces
     while (len(fallingPieces) > 0):
-        moveDown()
+        for piece in fallingPieces:
+            moveDown(piece)
 
-def moveDown():
-    global board, fallingPieces, staticPieces,controlling
-    fallingPieces.sort(cmp=_cmp, reverse=True)  # order of decending y
-    tmpList = []
-    for p in fallingPieces:
-        pDown = p.moveDown()
-        if (_checkCollision(pDown)):
-            staticPieces.append(p)
-            for x,y in p.boxes:
-                board[y][x] = OCCUPIED            
-        else:
-            tmpList.append(pDown)
-            #print 'dropping one piece down!!!'
-    fallingPieces = tmpList
-    if controlling and len(fallingPieces)!=1:
-        controlling = False
+def moveDown (piece):
+    global board, fallingPieces, staticPieces, currentPiece
+    assert piece != None
+    removeFromBoard(piece)
+    piece.moveDown()
+    col = _checkCollision(piece)
+    if col==COL_STATIC:
+        piece.moveUp()
+        fallingPieces.remove(piece)
+        staticPieces.add(piece)
+        addToBoard(piece,OCCUPIED_S)
+
+    else:
+        if col==COL_FALLING:
+            piece.moveUp()
+        addToBoard(piece,OCCUPIED_F)
+
+    if piece == currentPiece and len(fallingPiece)!=1:
+        currentPiece = None
 
 def checkGameEnd():
     for x in range(BOARDCOLS):
@@ -167,31 +192,45 @@ def _checkCollision(piece):
     '''return true if collide'''
     #print 'checking collision!!!'
     global board
-    if piece == None:
-        return True
+    assert piece != None
     for x, y in piece.boxes:
-        if x>=BOARDCOLS or x<0 or y>=BOARDROWS:
-            return True
-        if board[y][x] != BLANK:
-            return True        
-    return False
+        if x>=BOARDCOLS or x<0 or y>=BOARDROWS or board[y][x] == OCCUPIED_S:
+            return COL_STATIC
+        
+    for x, y in piece.boxes:
+        if board[y][x] == OCCUPIED_F:
+            return COL_FALLING
+        
+    return COL_NONE
 
 def _movePiece(command):
     '''not for moveDown'''
-    global fallingPieces,controlling
-    if controlling == False: return  # try to prune line eating case
+    global fallingPieces,currentPiece
+    if currentPiece == None: return  # try to prune line eating case
+    p = currentPiece
+    removeFromBoard(p)
     if command == CMD_ROTATE_R:
-        newPiece = fallingPieces[0].rotateRight()
+        p.rotateRight()
     elif command == CMD_ROTATE_L:
-        newPiece = fallingPieces[0].rotateLeft()
+        p.rotateLeft()
     elif command == CMD_MOVE_R:
-        newPiece = fallingPieces[0].moveRight()
+        p.moveRight()
     elif command == CMD_MOVE_L:
-        newPiece = fallingPieces[0].moveLeft()
+        p.moveLeft()
 
-    if _checkCollision(newPiece) == False:
-        fallingPieces = [newPiece]
-
+    # reverse if the command is not possible
+    if _checkCollision(p) == True:
+        if command == CMD_ROTATE_L:
+            p.rotateRight()
+        elif command == CMD_ROTATE_R:
+            p.rotateLeft()
+        elif command == CMD_MOVE_L:
+            p.moveRight()
+        elif command == CMD_MOVE_R:
+            p.moveLeft()
+            
+    addToBoard(p)
+        
 def _generateNewPiece():
     global pendings
     # refill if needed
