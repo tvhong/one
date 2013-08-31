@@ -221,6 +221,14 @@ class Piece:
         newBoxes = [(b[0], b[1]+1) for b in self.boxes]
         self.boxes = newBoxes
 
+    def moveUp(self):
+        """
+        Piece.moveDown(): return Piece
+        """
+        self.y -= 1
+        newBoxes = [(b[0], b[1]-1) for b in self.boxes]
+        self.boxes = newBoxes
+
     def split(self, y):
         """
         Piece.split() : return highPiece, lowPiece or None, None
