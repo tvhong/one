@@ -11,14 +11,16 @@ PENDING_MIN = 4   # min number of elements in pendings before renewing
 
 def start():
     global board, pendings, fallingPieces, staticPieces, softDroping
-    global currentPiece
+    global controlling
     global level, fallingTime, nextLevelScore, score
     board = [[BLANK]*BOARDCOLS for i in range(BOARDROWS)]
     pendings = [(random.randrange(TYPES), random.randrange(4)) \
             for i in range(PENDING_MAX)]
     fallingPieces = []
     staticPieces = []
-    currentPiece = None
+    
+    controlling = False
+    
     level = 1
     fallingTime = _getFallingTime(level)
     nextLevelScore = _getNextLvlScore(level)
@@ -33,7 +35,7 @@ def start():
 
 def update():
     global fallingTime, score, nextLevelScore, fallingPieces
-    global currentPiece
+    global controlling
 
     newTime = int(time.time() * 1000)
     # time to move down
@@ -41,8 +43,6 @@ def update():
         #print 'updating !!!!'
         update.oldTime = newTime
         moveDown()
-        if currentPiece not in fallingPieces:
-            currentPiece = None
 
         # check if any line is eaten
         while True:
@@ -58,8 +58,8 @@ def update():
         # make sure we have new pieces
         if len(fallingPieces) == 0:
             #print 'making a new piece !!!! so fun!!!'
-            currentPiece = _generateNewPiece()
-            fallingPieces.append(currentPiece)
+            fallingPieces.append(_generateNewPiece())
+            controlling = True
 
 def levelUp():
     global level, fallingTime, nextLevelScore
@@ -100,7 +100,7 @@ def hardDrop():
         moveDown()
 
 def moveDown():
-    global board, fallingPieces, staticPieces
+    global board, fallingPieces, staticPieces,controlling
     fallingPieces.sort(cmp=_cmp, reverse=True)  # order of decending y
     tmpList = []
     for p in fallingPieces:
@@ -113,6 +113,8 @@ def moveDown():
             tmpList.append(pDown)
             #print 'dropping one piece down!!!'
     fallingPieces = tmpList
+    if controlling and len(fallingPieces)!=1:
+        controlling = False
 
 def checkGameEnd():
     for x in range(BOARDCOLS):
@@ -142,6 +144,7 @@ def _removeEatenLines():
         if eaten:
             eatenLines.append(y)
             # clear the row in board
+
             for x in range(BOARDCOLS): board[y][x] = BLANK
             # clear the row in staticPieces
             for p in staticPieces[:]:
@@ -175,8 +178,8 @@ def _checkCollision(piece):
 
 def _movePiece(command):
     '''not for moveDown'''
-    global fallingPieces
-    if len(fallingPieces) > 1: return  # try to prune line eating case
+    global fallingPieces,controlling
+    if controlling == False: return  # try to prune line eating case
     if command == CMD_ROTATE_R:
         newPiece = fallingPieces[0].rotateRight()
     elif command == CMD_ROTATE_L:

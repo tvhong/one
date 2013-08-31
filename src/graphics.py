@@ -30,16 +30,18 @@ COLORS      = {TYPE_I: CYAN,
                TYPE_T: PURPLE,
                TYPE_Z: RED}
 
+GBOARDROWS = 20
 # POSITIONS & DIMENSIONS IN PIXEL
 BOXSIZE = 30
 BOXMG = 3
 
 MARGIN = 20
+BORDERWIDTH = 3
 
 BOARDX = MARGIN
 BOARDY = MARGIN
 BOARDWIDTH = BOARDCOLS*BOXSIZE
-BOARDHEIGHT = BOARDROWS*BOXSIZE
+BOARDHEIGHT = GBOARDROWS*BOXSIZE
 
 SCOREX = BOARDX+BOARDWIDTH+MARGIN
 SCOREY = MARGIN
@@ -77,6 +79,8 @@ def darker (color, times=1):
     return tuple(newcolor)
 
 def drawBox ((x, y), color):
+    if x<=BOARDX-BOXSIZE or y<=BOARDY-BOXSIZE:
+        return
     x  = x+1
     y  = y+1
     x2 = x+BOXSIZE-2
@@ -90,30 +94,27 @@ def drawBox ((x, y), color):
     pygame.draw.polygon(SURFACE,darker(COLORS[color],3),[(x3,y4),(x4,y4),(x2,y2),(x,y2)])
     pygame.draw.polygon(SURFACE,lighter(COLORS[color]),[(x3,y3),(x4,y3),(x4,y4),(x3,y4)])
 
-def toPixel (col, row):
+def toPixel ((col, row)):
     return (BOARDX+col*BOXSIZE,BOARDY+row*BOXSIZE)
     
-def drawBoard (board):
-    for row in range(BOARDROWS):
-        for col in range(BOARDCOLS):
-            if board[row][col] != BLANK:
-                pos = toPixel(col,row)
-                #assert 0 == 1
-                assert pos[0] >= BOARDX
-                assert pos[0] <= BOARDX+BOARDWIDTH
-                assert pos[1] >= BOARDY
-                assert pos[1] <= BOARDY+BOARDHEIGHT
-                
-                drawBox(pos,board[row][col])
+def drawBoard ():
+    # draw borders
+    pygame.draw.rect(SURFACE,BORDERCOLOR,
+                     (BOARDX-BORDERWIDTH,BOARDY-BORDERWIDTH,BOARDWIDTH+BORDERWIDTH*2,BOARDHEIGHT+BORDERWIDTH*2),BORDERWIDTH)
+    # draw board background
+    for row in range(1,GBOARDROWS):
+        for col in range(1,BOARDCOLS):
+            pos = toPixel((col,row))
+            pygame.draw.circle(SURFACE,darker(BORDERCOLOR,4),pos,2)
     return
 
 def drawPiece (piece,pos=None):
     if (pos==None):
-        pos = toPixel(piece.x,piece.y)
+        pos = toPixel((piece.x,piece.y-4))
 
     #print 'drawing a piece !!!'
     for box in piece.getBoxes():
-        bPos = toPixel(box[0],box[1])
+        bPos = toPixel((box[0],box[1]-4))
         drawBox(bPos,piece.bType)
         #print 'drawing a box at ',bPos
 

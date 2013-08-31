@@ -1,8 +1,9 @@
-import sys,pygame,graphics,game
+import sys,pygame,graphics,game,time
 from pygame.locals import *
 from gameconstants import *
 
 FPS = 30
+MOVING_DELAY = 0.1
 GAME_NAME = 'Tetris!!'
 
 def main():
@@ -41,6 +42,8 @@ def pauseGame():
 def startGame():
     # init game board here
     running = True
+    movingLeft = False
+    movingRight = False
     while running == True:
         if game.checkGameEnd():
             # TODO: show scores, restart, give candies, whatever
@@ -56,19 +59,25 @@ def startGame():
                     pauseGame()
                 elif (event.key in (K_LEFT, K_a)):
                     # stop moving left
-                    nop()
+                    movingLeft = False
                 elif (event.key in (K_RIGHT, K_d)):
                     # stop moving right
-                    nop()
+                    movingRight = False
                 elif (event.key in (K_DOWN, K_s)):
-                    game.stopSoftDrop();
+                    game.stopSoftDrop()
 
             elif event.type == KEYDOWN: # check key press
                 if (event.key in (K_LEFT, K_a)):
                     game.moveLeft()
+                    movingLeft = True
+                    movingRight = False
+                    lastMove = time.time()
                     
                 elif (event.key in (K_RIGHT, K_d)):
                     game.moveRight()
+                    movingLeft = False
+                    movingRight = True
+                    lastMove = time.time()
                     
                 elif (event.key in (K_UP, K_w, K_x, K_PERIOD)):
                     game.rotateRight()
@@ -82,6 +91,13 @@ def startGame():
                 elif event.key == K_SPACE:
                     game.hardDrop()
 
+        # movement from holding a key
+        if (movingLeft or movingRight) and time.time()-lastMove>MOVING_DELAY:
+            if movingLeft:
+                game.moveLeft()
+            if movingRight:
+                game.moveRight()
+            lastMove = time.time()
         
         # update game state
         game.update()
@@ -89,6 +105,7 @@ def startGame():
         # drawing
         graphics.reset()
         graphics.drawStatus(game.score,game.level)
+        graphics.drawBoard()
         for piece in game.getPieces():
             graphics.drawPiece(piece)
         pygame.display.update()
