@@ -233,18 +233,23 @@ class Piece:
         """
         Piece.split() : return highPiece, lowPiece or None, None
         """
+        # don't create new Pieces if not have to
+        lowestBox = self.boxes[len(self.boxes)-1]  # thanks to the invariant
+        if lowestBox[1] < y:
+            return self, None
+        highestBox = self.boxes[0]  # same, tks to the invariant
+        if highestBox[1] > y:
+            return None, self
+
+        highPiece = None
+        lowPiece = None
         highBoxes = [b for b in self.boxes if b[1] < y]
+        lowBoxes = [b for b in self.boxes if b[1] > y]
         if len(highBoxes) > 0:
             # x, y & direction doesn't matter for splitted pieces
             highPiece = Piece(self.bType, self.x, self.y, self.direction, True, highBoxes)
-        else:
-            highPiece = None
-
-        lowBoxes = [b for b in self.boxes if b[1] > y]
         if len(lowBoxes) > 0:
             lowPiece = Piece(self.bType, self.x, y+1, self.direction, True, lowBoxes)
-        else:
-            lowPiece = None
 
         return highPiece, lowPiece
 
