@@ -23,6 +23,7 @@ REVERSE_CMD = {CMD_ROTATE_R:CMD_ROTATE_L,
 def start():
     global board, pendings, fallingPieces, staticPieces, softDroping
     global currentPiece
+    global f
     global level, fallingTime, nextLevelScore, score
     board = [[BLANK]*BOARDCOLS for i in range(BOARDROWS)]
     pendings = [(random.randrange(TYPES), random.randrange(4)) \
@@ -31,7 +32,8 @@ def start():
     staticPieces = []
     
     currentPiece = None
-    
+
+    f = open('output','w')
     level = 1
     fallingTime = _getFallingTime(level)
     nextLevelScore = _getNextLvlScore(level)
@@ -74,6 +76,15 @@ def update():
             currentPiece = _generateNewPiece()
             addToBoard(currentPiece)
             fallingPieces.append(currentPiece)
+        f.write(printBoard())
+
+def printBoard ():
+    s = "---+---+---\n"
+    for y in range(BOARDROWS):
+        for x in range(BOARDCOLS):
+            s += str(board[y][x])
+        print '\n'
+    return s
 
 def addToBoard (piece, status=OCCUPIED_F):
     for x,y in piece.boxes:
