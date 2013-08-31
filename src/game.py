@@ -22,7 +22,7 @@ REVERSE_CMD = {CMD_ROTATE_R:CMD_ROTATE_L,
 
 def start():
     global board, pendings, fallingPieces, staticPieces, softDroping
-    global controlling
+    global currentPiece
     global level, fallingTime, nextLevelScore, score
     board = [[BLANK]*BOARDCOLS for i in range(BOARDROWS)]
     pendings = [(random.randrange(TYPES), random.randrange(4)) \
@@ -30,7 +30,7 @@ def start():
     fallingPieces = []
     staticPieces = []
     
-    controlling = False
+    currentPiece = None
     
     level = 1
     fallingTime = _getFallingTime(level)
@@ -53,8 +53,9 @@ def update():
     if (newTime - update.oldTime) > fallingTime:
         #print 'updating !!!!'
         update.oldTime = newTime
-        
-        moveDown()
+
+        if currentPiece != None:
+            moveDown(currentPiece)
 
         # check if any line is eaten
         while True:
@@ -130,7 +131,7 @@ def moveDown (piece):
     if col==COL_STATIC:
         piece.moveUp()
         fallingPieces.remove(piece)
-        staticPieces.add(piece)
+        staticPieces.append(piece)
         addToBoard(piece,OCCUPIED_S)
 
     else:
@@ -138,12 +139,12 @@ def moveDown (piece):
             piece.moveUp()
         addToBoard(piece,OCCUPIED_F)
 
-    if piece == currentPiece and len(fallingPiece)!=1:
+    if piece == currentPiece and len(fallingPieces)!=1:
         currentPiece = None
 
 def checkGameEnd():
     for x in range(BOARDCOLS):
-        if board[PATTERNSIZE-1][x] != BLANK:
+        if board[PATTERNSIZE-1][x] == OCCUPIED_S:
             return True
     return False
 
