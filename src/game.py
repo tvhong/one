@@ -20,7 +20,7 @@ REVERSE_CMD = {CMD_ROTATE_R:CMD_ROTATE_L,
                CMD_MOVE_R  :CMD_MOVE_L,
                CMD_MOVE_L  :CMD_MOVE_R}
 
-f = open('output','w')
+f = open('output.txt','w')
 
 def start():
     global board, pendings, fallingPieces, staticPieces, softDroping
@@ -80,11 +80,11 @@ def update():
         f.write(printBoard())
 
 def printBoard ():
-    s = "\n---+---+---\n"
+    s = '\n---+---+---\n'
     for y in range(BOARDROWS):
         for x in range(BOARDCOLS):
             s += str(board[y][x])
-        s += "\n"
+        s += '\n'
     return s
 
 def addToBoard (piece, status=OCCUPIED_F):
