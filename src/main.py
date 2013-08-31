@@ -94,7 +94,7 @@ def handleGlobalEvents ():
     for event in pygame.event.get():
         if event.type == KEYUP and event.key == K_p:
             pauseGame()
-        else:
+        elif running:
             pygame.event.post(event)
             
 def startGame():
