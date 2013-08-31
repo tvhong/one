@@ -11,13 +11,14 @@ PENDING_MIN = 4   # min number of elements in pendings before renewing
 
 def start():
     global board, pendings, fallingPieces, staticPieces, softDroping
+    global currentPiece
     global level, fallingTime, nextLevelScore, score
     board = [[BLANK]*BOARDCOLS for i in range(BOARDROWS)]
     pendings = [(random.randrange(TYPES), random.randrange(4)) \
             for i in range(PENDING_MAX)]
     fallingPieces = []
     staticPieces = []
-
+    currentPiece = None
     level = 1
     fallingTime = _getFallingTime(level)
     nextLevelScore = _getNextLvlScore(level)
@@ -32,6 +33,7 @@ def start():
 
 def update():
     global fallingTime, score, nextLevelScore, fallingPieces
+    global currentPiece
 
     newTime = int(time.time() * 1000)
     # time to move down
@@ -39,6 +41,8 @@ def update():
         #print 'updating !!!!'
         update.oldTime = newTime
         moveDown()
+        if currentPiece not in fallingPieces:
+            currentPiece = None
 
         # check if any line is eaten
         while True:
@@ -54,7 +58,8 @@ def update():
         # make sure we have new pieces
         if len(fallingPieces) == 0:
             #print 'making a new piece !!!! so fun!!!'
-            fallingPieces.append(_generateNewPiece())
+            currentPiece = _generateNewPiece()
+            fallingPieces.append(currentPiece)
 
 def levelUp():
     global level, fallingTime, nextLevelScore
@@ -103,7 +108,7 @@ def moveDown():
         if (_checkCollision(pDown)):
             staticPieces.append(p)
             for x,y in p.boxes:
-                board[y][x] = OCCUPIED
+                board[y][x] = OCCUPIED            
         else:
             tmpList.append(pDown)
             #print 'dropping one piece down!!!'
