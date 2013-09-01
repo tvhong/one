@@ -26,6 +26,7 @@ def start():
     global board, pendings, fallingPieces, staticPieces, softDroping
     global currentPiece,nextPiece
     global level, fallingTime, nextLevelScore, score
+    global delaying, delayStart
     board = [[BLANK]*BOARDCOLS for i in range(BOARDROWS)]
     pendings = [(random.randrange(TYPES), random.randrange(4)) \
             for i in range(PENDING_MAX)]
@@ -35,6 +36,7 @@ def start():
     nextPiece = None
     currentPiece = None
 
+    delaying = False
     
     level = 1
     fallingTime = _getFallingTime(level)
@@ -51,7 +53,8 @@ def start():
 def update():
     global fallingTime, score, nextLevelScore, fallingPieces
     global currentPiece
-
+    global delaying
+    
     newTime = int(time.time() * 1000)
     # time to move down
     if (newTime - update.oldTime) > fallingTime:
@@ -62,18 +65,22 @@ def update():
             moveDown(currentPiece)
 
         # check if any line is eaten
-        while True:
-            lines = _removeEatenLines()
-            # print lines;
-            if len(lines) == 0: break;
-            # Call main.lineEaten() here
+        
+        lines = _removeEatenLines()
+        # print lines;
+        if len(lines) != 0:
+            delaying = True;
             score += _calculateScore(lines)
             if score >= nextLevelScore:
                 levelUp()
             hardDrop();
+        else:
+            delaying = False
+        # Call main.lineEaten() here
+        
 
         # make sure we have new pieces
-        if currentPiece == None:
+        if not delaying and currentPiece == None:
             #print 'making a new piece !!!! so fun!!!'
             currentPiece = _getNextPiece()
             addToBoard(currentPiece)
