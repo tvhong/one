@@ -43,14 +43,15 @@ BOARDY = MARGIN
 BOARDWIDTH = BOARDCOLS*BOXSIZE
 BOARDHEIGHT = GBOARDROWS*BOXSIZE
 
-SCOREX = BOARDX+BOARDWIDTH+MARGIN
-SCOREY = MARGIN
+NEXTPIECEX = BOARDX+BOARDWIDTH+MARGIN
+NEXTPIECEY = MARGIN
+
+SCOREX = NEXTPIECEX
+SCOREY = NEXTPIECEY + 150 + MARGIN
 
 LEVELX = SCOREX
 LEVELY = SCOREY + 50 + MARGIN
 
-NEXTPIECEX = SCOREX
-NEXTPIECEY = LEVELY + 50 + MARGIN
 # FONTS
 
 
@@ -109,27 +110,36 @@ def drawBoard ():
     return
 
 def drawPiece (piece,pos=None):
+    assert piece != None
     if (pos==None):
-        pos = toPixel((piece.x,piece.y-4))
+        for box in piece.getBoxes():
+            bPos = toPixel((box[0],box[1]-4))
+            drawBox(bPos,piece.bType)
 
-    #print 'drawing a piece !!!'
-    for box in piece.getBoxes():
-        bPos = toPixel((box[0],box[1]-4))
-        drawBox(bPos,piece.bType)
-        #print 'drawing a box at ',bPos
+    else:
+        for box in piece.getBoxes():
+            bPos = (pos[0]+(box[0]-piece.x)*BOXSIZE,pos[1]+box[1]*BOXSIZE)
+            drawBox(bPos,piece.bType)
+            #print 'drawing a box at ',bPos
 
 def drawNextPiece (nextPiece):
-    drawPiece (nextPiece,(NEXTPIECEX,NEXTPIECEY))
+    pygame.draw.rect(SURFACE,BORDERCOLOR,
+                     (NEXTPIECEX,NEXTPIECEY,150,150),1)
+    drawText('Next',(NEXTPIECEX+20,NEXTPIECEY),bgcolor=BLACK)
+    if nextPiece!=None:
+        drawPiece (nextPiece,(NEXTPIECEX+10,NEXTPIECEY+10))
 
 def drawStatus (score,level):
     # draw the score text
-    scoreSurf = BASICFONT.render('Score: %s' % score, True, TEXTCOLOR)
-    scoreRect = scoreSurf.get_rect()
-    scoreRect.topleft = (SCOREX, SCOREY)
-    SURFACE.blit(scoreSurf, scoreRect)
+    drawText('Score: %s' % score,(SCOREX, SCOREY))
  
     # draw the level text
-    levelSurf = BASICFONT.render('Level: %s' % level, True, TEXTCOLOR)
-    levelRect = levelSurf.get_rect()
-    levelRect.topleft = (LEVELX, LEVELY)
-    SURFACE.blit(levelSurf, levelRect)
+    drawText('Level: %s' % level,(LEVELX,LEVELY))
+
+def drawText (text,pos,color=TEXTCOLOR,font=None,bgcolor=None):
+    global BASICFONT
+    if font==None: fone = BASICFONT
+    textSurf = BASICFONT.render(text,True,color)
+    textRect = textSurf.get_rect()
+    textRect.topleft = (pos[0],pos[1])
+    SURFACE.blit(textSurf, textRect)    

@@ -24,14 +24,15 @@ f = open('output.txt','w')
 
 def start():
     global board, pendings, fallingPieces, staticPieces, softDroping
-    global currentPiece
+    global currentPiece,nextPiece
     global level, fallingTime, nextLevelScore, score
     board = [[BLANK]*BOARDCOLS for i in range(BOARDROWS)]
     pendings = [(random.randrange(TYPES), random.randrange(4)) \
             for i in range(PENDING_MAX)]
     fallingPieces = []
     staticPieces = []
-    
+
+    nextPiece = None
     currentPiece = None
 
     
@@ -74,7 +75,7 @@ def update():
         # make sure we have new pieces
         if currentPiece == None:
             #print 'making a new piece !!!! so fun!!!'
-            currentPiece = _generateNewPiece()
+            currentPiece = _getNextPiece()
             addToBoard(currentPiece)
             fallingPieces.append(currentPiece)
         f.write(printBoard())
@@ -103,6 +104,10 @@ def levelUp():
 
 def getPieces():
     return fallingPieces + staticPieces
+
+def getNextPiece ():
+    global nextPiece
+    return nextPiece
 
 def rotateRight():
     _movePiece(CMD_ROTATE_R)
@@ -248,9 +253,19 @@ def _movePiece(command):
             p.moveLeft()
             
     addToBoard(p)
+
+def _getNextPiece ():
+    global nextPiece
+    if nextPiece == None:
+        nextPiece = _generateNewPiece()
+
+    newPiece = nextPiece
+    nextPiece = _generateNewPiece()
+    return newPiece
         
 def _generateNewPiece():
     global pendings
+
     # refill if needed
     if (len(pendings) < PENDING_MIN):
         pendings = pendings + [(random.randrange(TYPES),random.randrange(4)) \
@@ -259,7 +274,9 @@ def _generateNewPiece():
     pending = pendings.pop(0);
     
     #print 'im the real new piece here! u imposters!'
+    
     return Piece(pending[0], (BOARDCOLS - PATTERNSIZE)/2, 0, pending[1])
+    
 
 def _cmp(piece1, piece2):
     # TODO: error here

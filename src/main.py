@@ -119,6 +119,7 @@ def startGame():
         # drawing
         graphics.reset()
         graphics.drawStatus(game.score,game.level)
+        graphics.drawNextPiece(game.getNextPiece())
         graphics.drawBoard()
         for piece in game.getPieces():
             graphics.drawPiece(piece)
