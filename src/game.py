@@ -26,7 +26,7 @@ def start():
     global board, pendings, fallingPieces, staticPieces, softDroping
     global currentPiece,nextPiece
     global level, fallingTime, nextLevelScore, score
-    global delaying, delayStart
+    global delaying, lastDrop
     board = [[BLANK]*BOARDCOLS for i in range(BOARDROWS)]
     pendings = [(random.randrange(TYPES), random.randrange(4)) \
             for i in range(PENDING_MAX)]
@@ -37,6 +37,7 @@ def start():
     currentPiece = None
 
     delaying = False
+    lastDrop = 0
     
     level = 1
     fallingTime = _getFallingTime(level)
@@ -53,13 +54,13 @@ def start():
 def update():
     global fallingTime, score, nextLevelScore, fallingPieces
     global currentPiece
-    global delaying
+    global delaying,lastDrop
     
-    newTime = int(time.time() * 1000)
+    newTime = time.time()
     # time to move down
-    if (newTime - update.oldTime) > fallingTime:
+    if (newTime - lastDrop)*1000 > fallingTime:
         #print 'updating !!!!'
-        update.oldTime = newTime
+        lastDrop = newTime
 
         if currentPiece != None:
             moveDown(currentPiece)
@@ -73,14 +74,10 @@ def update():
             score += _calculateScore(lines)
             if score >= nextLevelScore:
                 levelUp()
+        elif delaying:
             hardDrop();
-        else:
             delaying = False
-        # Call main.lineEaten() here
-        
-
-        # make sure we have new pieces
-        if not delaying and currentPiece == None:
+        elif currentPiece == None:
             #print 'making a new piece !!!! so fun!!!'
             currentPiece = _getNextPiece()
             addToBoard(currentPiece)
@@ -132,19 +129,20 @@ def softDrop():
     global fallingTime, softDroping     #TODO: do I need this?
     if not softDroping:
         softDroping = True
-        fallingTime /= 2
+        fallingTime /= 3
 
 def stopSoftDrop():
     global fallingTime, softDroping     #TODO: again, do I need this?
     if softDroping:
         softDroping = False
-        fallingTime *= 2
+        fallingTime = _getFallingTime(level)
 
 def hardDrop():
-    global fallingPieces
+    global fallingPieces,lastDrop
     while (len(fallingPieces) > 0):
         for piece in fallingPieces:
             moveDown(piece)
+    lastDrop = time.time()
 
 def moveDown (piece):
     global board, fallingPieces, staticPieces, currentPiece
@@ -177,8 +175,8 @@ def checkGameEnd():
 ########################################################################
 
 def _getFallingTime(level):
-    return 500 - level * 50; # TODO: need a better function
-    # 1st level: 950
+    return 540 - level * 40; # TODO: need a better function
+    # 500, 460, 420, 380, 340 ...
 
 def _getNextLvlScore(level):
     return level*1000;  # TODO: need a better function

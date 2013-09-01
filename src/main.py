@@ -10,8 +10,7 @@ def main():
     global FPSCLOCK, DISPLAYSURF, running
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
-    DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
-    graphics.init(DISPLAYSURF)
+    graphics.init()
     pygame.display.set_caption(GAME_NAME)
     running = False
     # show main menu or sth

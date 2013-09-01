@@ -32,6 +32,11 @@ COLORS      = {TYPE_I: CYAN,
 
 GBOARDROWS = 20
 # POSITIONS & DIMENSIONS IN PIXEL
+WINDOWWIDTH = 1000
+WINDOWHEIGHT = 650
+
+TEXTAREAWIDTH = 400
+
 BOXSIZE = 30
 BOXMG = 3
 
@@ -54,12 +59,27 @@ LEVELY = SCOREY + 50 + MARGIN
 
 # FONTS
 
+# INSTRUCTION TEXT
+INS = ['Complete a row to gain points',
+        'and avoid reaching the top!',
+        'Arrow left / right: move horizontally',
+        'Z and X: rotate',
+        'Arrow down: fasten the falling rate',
+        'Space: drop immediately',
+        'P: pause the game',
+        '- - -',
+        'Have fun!!!']
 
-def init (surface):
+def init ():
     global SURFACE,BASICFONT,BIGFONT
-    SURFACE = surface
+    WINDOW = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
+    SURFACE = WINDOW.subsurface((TEXTAREAWIDTH,0,WINDOWWIDTH-TEXTAREAWIDTH,WINDOWHEIGHT))
     BASICFONT = pygame.font.Font('freesansbold.ttf', 18)
     BIGFONT = pygame.font.Font('freesansbold.ttf', 100)
+    dy = 50
+    for insLine in INS:
+        drawText(insLine,(MARGIN,MARGIN+dy),surface=WINDOW)
+        dy += 40
 
 def reset ():
     SURFACE.fill(BGCOLOR)
@@ -136,10 +156,11 @@ def drawStatus (score,level):
     # draw the level text
     drawText('Level: %s' % level,(LEVELX,LEVELY))
 
-def drawText (text,pos,color=TEXTCOLOR,font=None,bgcolor=None):
-    global BASICFONT
+def drawText (text,pos,color=TEXTCOLOR,font=None,bgcolor=None,surface=None):
+    global BASICFONT,SURFACE
     if font==None: fone = BASICFONT
+    if surface==None: surface = SURFACE
     textSurf = BASICFONT.render(text,True,color)
     textRect = textSurf.get_rect()
     textRect.topleft = (pos[0],pos[1])
-    SURFACE.blit(textSurf, textRect)    
+    surface.blit(textSurf, textRect)    
