@@ -38,7 +38,6 @@ def pauseGame():
     # S's TODO
     global running
     running = not running
-    return
 
 def handleEvents():
     global movingLeft, movingRight,running,lastMove
@@ -115,13 +114,13 @@ def startGame():
             # update game state
             game.update()
 
-        # drawing
-        graphics.reset()
-        graphics.drawStatus(game.score,game.level)
-        graphics.drawNextPiece(game.getNextPiece())
-        graphics.drawBoard()
-        for piece in game.getPieces():
-            graphics.drawPiece(piece)
+            # drawing
+            graphics.reset()
+            graphics.drawStatus(game.score,game.level)
+            graphics.drawNextPiece(game.getNextPiece())
+            graphics.drawBoard()
+            for piece in game.getPieces():
+                graphics.drawPiece(piece)
         pygame.display.update()
         FPSCLOCK.tick(FPS)
         
