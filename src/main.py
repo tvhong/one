@@ -121,7 +121,8 @@ def startGame():
             graphics.drawBoard()
             for piece in game.getPieces():
                 graphics.drawPiece(piece)
-        pygame.display.update()
+            pygame.display.update()
+
         FPSCLOCK.tick(FPS)
         
 ############

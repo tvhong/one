@@ -20,7 +20,7 @@ REVERSE_CMD = {CMD_ROTATE_R:CMD_ROTATE_L,
                CMD_MOVE_R  :CMD_MOVE_L,
                CMD_MOVE_L  :CMD_MOVE_R}
 
-f = open('output.txt','w')
+logF = open('gamelog.txt','w')
 
 def start():
     global board, pendings, fallingPieces, staticPieces, softDroping
@@ -47,10 +47,6 @@ def start():
     softDroping = False
     update.oldTime = int(time.time() * 1000)
 
-    #DEBUGGING:
-    for x in range(BOARDCOLS):
-        board[15][x] = OCCUPIED_S
-
 def update():
     global fallingTime, score, nextLevelScore, fallingPieces
     global currentPiece
@@ -63,7 +59,7 @@ def update():
         lastDrop = newTime
 
         if currentPiece != None:
-            moveDown(currentPiece)
+            _moveDown(currentPiece)
 
         # check if any line is eaten
         
@@ -80,25 +76,9 @@ def update():
         elif currentPiece == None:
             #print 'making a new piece !!!! so fun!!!'
             currentPiece = _getNextPiece()
-            addToBoard(currentPiece)
+            _addToBoard(currentPiece)
             fallingPieces.append(currentPiece)
-        f.write(printBoard())
-
-def printBoard ():
-    s = '\n---+---+---\n'
-    for y in range(BOARDROWS):
-        for x in range(BOARDCOLS):
-            s += str(board[y][x])
-        s += '\n'
-    return s
-
-def addToBoard (piece, status=OCCUPIED_F):
-    for x,y in piece.boxes:
-        board[y][x] = status
-
-def removeFromBoard (piece):
-    for x,y in piece.boxes:
-        board[y][x] = BLANK
+        logFile.write(_getStrBoard())
 
 def levelUp():
     global level, fallingTime, nextLevelScore
@@ -126,13 +106,13 @@ def moveLeft():
     _movePiece(CMD_MOVE_L)
 
 def softDrop():
-    global fallingTime, softDroping     #TODO: do I need this?
+    global fallingTime, softDroping
     if not softDroping:
         softDroping = True
         fallingTime /= 3
 
 def stopSoftDrop():
-    global fallingTime, softDroping     #TODO: again, do I need this?
+    global fallingTime, softDroping
     if softDroping:
         softDroping = False
         fallingTime = _getFallingTime(level)
@@ -141,28 +121,8 @@ def hardDrop():
     global fallingPieces,lastDrop
     while (len(fallingPieces) > 0):
         for piece in fallingPieces:
-            moveDown(piece)
+            _moveDown(piece)
     lastDrop = time.time()
-
-def moveDown (piece):
-    global board, fallingPieces, staticPieces, currentPiece
-    assert piece != None
-    removeFromBoard(piece)
-    piece.moveDown()
-    col = _checkCollision(piece)
-    if col==COL_STATIC:
-        piece.moveUp()
-        fallingPieces.remove(piece)
-        staticPieces.append(piece)
-        addToBoard(piece,OCCUPIED_S)
-        
-        if piece == currentPiece:
-            currentPiece = None
-
-    else:
-        if col==COL_FALLING:
-            piece.moveUp()
-        addToBoard(piece,OCCUPIED_F)
 
 def checkGameEnd():
     for x in range(BOARDCOLS):
@@ -171,7 +131,7 @@ def checkGameEnd():
     return False
 
 ########################################################################
-### Helper functions
+### Game helper functions
 ########################################################################
 
 def _getFallingTime(level):
@@ -191,30 +151,33 @@ def _removeEatenLines():
             if board[y][x] != OCCUPIED_S: eaten = False
         if eaten:
             eatenLines.append(y)
+            
             # clear the row in board
-
             for x in range(BOARDCOLS): board[y][x] = BLANK
             # clear the row in staticPieces
             for p in staticPieces[:]:
                 ptop, pbot = p.split(y)
-                # DEBUGGING 
-                print ptop
-                print pbot
                 if pbot != p:
                     staticPieces.remove(p)
                     if ptop != None:
                         assert len(ptop.boxes)>0
                         fallingPieces.append(ptop)
-                        addToBoard(ptop,OCCUPIED_F)
+                        _addToBoard(ptop,OCCUPIED_F)
                     if pbot != None:
                         assert len(pbot.boxes)>0
                         staticPieces.append(pbot)
-                        addToBoard(pbot,OCCUPIED_S)
+                        _addToBoard(pbot,OCCUPIED_S)
     return eatenLines
 
 def _calculateScore(eatenLines):
-    return len(eatenLines) * 100
-
+    global level
+    n = len(eatenLines);
+    baseScore = 100
+    if n == 2: baseScore = 300
+    elif n == 3: baseScore = 500
+    elif n == 4: baseScore = 800
+    #TODO: consider combo?
+    return n * baseScore * level
 
 def _checkCollision(piece):
     '''return true if collide'''
@@ -236,7 +199,7 @@ def _movePiece(command):
     global fallingPieces,currentPiece
     if currentPiece == None: return  # try to prune line eating case
     p = currentPiece
-    removeFromBoard(p)
+    _removeFromBoard(p)
     if command == CMD_ROTATE_R:
         p.rotateRight()
     elif command == CMD_ROTATE_L:
@@ -257,7 +220,7 @@ def _movePiece(command):
         elif command == CMD_MOVE_R:
             p.moveLeft()
             
-    addToBoard(p)
+    _addToBoard(p)
 
 def _getNextPiece ():
     global nextPiece
@@ -277,12 +240,10 @@ def _generateNewPiece():
                 for i in range(PENDING_MAX - PENDING_MIN)]
 
     pending = pendings.pop(0);
-    
     #print 'im the real new piece here! u imposters!'
-    
     return Piece(pending[0], (BOARDCOLS - PATTERNSIZE)/2, 0, pending[1])
     
-
+'''
 def _cmp(piece1, piece2):
     # TODO: error here
     y1 = piece1.boxes[len(piece1.boxes)-1][1]    # get the lowest y
@@ -292,3 +253,40 @@ def _cmp(piece1, piece2):
     if (y1 < y2):
         return -1
     return 0
+'''
+
+def _moveDown (piece):
+    global board, fallingPieces, staticPieces, currentPiece
+    assert piece != None
+    _removeFromBoard(piece)
+    piece.moveDown()
+    col = _checkCollision(piece)
+    if col==COL_STATIC:
+        piece.moveUp()
+        fallingPieces.remove(piece)
+        staticPieces.append(piece)
+        _addToBoard(piece,OCCUPIED_S)
+        
+        if piece == currentPiece:
+            currentPiece = None
+
+    else:
+        if col==COL_FALLING:
+            piece.moveUp()
+        _addToBoard(piece,OCCUPIED_F)
+
+def _getStrBoard():
+    s = '\n---+---+---\n'
+    for y in range(BOARDROWS):
+        for x in range(BOARDCOLS):
+            s += str(board[y][x])
+        s += '\n'
+    return s
+
+def _addToBoard(piece, status=OCCUPIED_F):
+    for x,y in piece.boxes:
+        board[y][x] = status
+
+def _removeFromBoard(piece):
+    for x,y in piece.boxes:
+        board[y][x] = BLANK

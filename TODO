@@ -1,4 +1,3 @@
-Draw a border
-Make moving Left and right continuously
-Menu and stuffs
-Debug removeEatenLines
+Improve getFallingTime, getNextLvlScore
+I think the line-eaten-delay should be in graphic
+Menu?
