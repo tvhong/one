@@ -13,6 +13,7 @@ def main():
     graphics.init()
     pygame.display.set_caption(GAME_NAME)
     pygame.mixer.music.load('../music/theme.mp3')  # load music theme
+    # TODO: need to lead line eating sound
     running = False
     # show main menu or sth
 
@@ -28,7 +29,7 @@ def newPieceGenerated():
     pass
 
 def musicOn():
-    pygame.mixer.music.play()
+    pygame.mixer.music.play(-1,0.0)
 
 def musicOff():
     pygame.mixer.music.stop()
@@ -45,7 +46,6 @@ def terminate():
     #sys.quit()
 
 def pauseGame():
-    # S's TODO
     global running
     running = not running
 
@@ -126,15 +126,20 @@ def run():
             handleEvents()
             
             # update game state
-            game.update()
+            lines = game.update()
+            projectPiece = game.getProjection()
 
             # drawing
             graphics.reset()
             graphics.drawStatus(game.score,game.level)
             graphics.drawNextPiece(game.getNextPiece())
             graphics.drawBoard()
+            if projectPiece:
+                graphics.drawProjectPiece(projectPiece)
             for piece in game.getPieces():
                 graphics.drawPiece(piece)
+            if lines != []:
+                graphics.drawLineEffect(lines)
             pygame.display.update()
 
         FPSCLOCK.tick(FPS)

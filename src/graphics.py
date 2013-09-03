@@ -164,3 +164,10 @@ def drawText (text,pos,color=TEXTCOLOR,font=None,bgcolor=None,surface=None):
     textRect = textSurf.get_rect()
     textRect.topleft = (pos[0],pos[1])
     surface.blit(textSurf, textRect)    
+
+def drawLineEffect(lines):
+    pass
+
+def drawProjectPiece(piece):
+    assert piece != None
+    drawPiece(piece)    #TODO: for testing only

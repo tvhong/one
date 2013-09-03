@@ -1,4 +1,4 @@
-import pygame, random, time
+import pygame, random, time, copy
 from Piece import Piece
 from pygame.locals import *
 from gameconstants import *
@@ -53,6 +53,7 @@ def update():
     global delaying,lastDrop
     
     newTime = time.time()
+    lines = []
     # time to move down
     if (newTime - lastDrop)*1000 > fallingTime:
         #print 'updating !!!!'
@@ -79,6 +80,7 @@ def update():
             _addToBoard(currentPiece)
             fallingPieces.append(currentPiece)
         logF.write(_getStrBoard())
+    return lines
 
 def levelUp():
     global level, fallingTime, nextLevelScore
@@ -132,6 +134,19 @@ def checkGameEnd():
 
 def close():
     logF.close()
+
+def getProjection():
+    global board, currentPiece
+    projectPiece = None
+    if currentPiece != None:
+        projectPiece = copy.copy(currentPiece)
+        col = _checkCollision(projectPiece)
+        while col != COL_STATIC:
+            projectPiece.moveDown()
+            col = _checkCollision(projectPiece)
+        projectPiece.moveUp()
+
+    return projectPiece
 
 ########################################################################
 ### Game helper functions
