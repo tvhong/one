@@ -12,11 +12,12 @@ def main():
     FPSCLOCK = pygame.time.Clock()
     graphics.init()
     pygame.display.set_caption(GAME_NAME)
+    pygame.mixer.music.load('../music/theme.mp3')  # load music theme
     running = False
     # show main menu or sth
 
-    game.start()
-    startGame()
+    start()
+    run()
     # by now, the game is over
     terminate()
 
@@ -26,11 +27,20 @@ def lineEaten(lines):
 def newPieceGenerated():
     pass
 
-def nop():
-    return
+def musicOn():
+    pygame.mixer.music.play()
+
+def musicOff():
+    pygame.mixer.music.stop()
+
+def turnSoundOn():
+    pass
+
+def turnSoundOff():
+    pass
 
 def terminate():
-    game.f.close()
+    game.close()
     pygame.quit()
     #sys.quit()
 
@@ -95,12 +105,16 @@ def handleGlobalEvents ():
         elif running:
             pygame.event.post(event)
             
-def startGame():
-    # init game board here
+def start():
     global movingLeft,movingRight,running,lastMove
     running = True
     movingLeft = False
     movingRight = False
+    game.init()
+    musicOn()
+    
+def run():
+    global movingLeft,movingRight,running,lastMove
     while True:
         handleGlobalEvents()
         

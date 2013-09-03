@@ -22,7 +22,7 @@ REVERSE_CMD = {CMD_ROTATE_R:CMD_ROTATE_L,
 
 logF = open('gamelog.txt','w')
 
-def start():
+def init():
     global board, pendings, fallingPieces, staticPieces, softDroping
     global currentPiece,nextPiece
     global level, fallingTime, nextLevelScore, score
@@ -78,7 +78,7 @@ def update():
             currentPiece = _getNextPiece()
             _addToBoard(currentPiece)
             fallingPieces.append(currentPiece)
-        logFile.write(_getStrBoard())
+        logF.write(_getStrBoard())
 
 def levelUp():
     global level, fallingTime, nextLevelScore
@@ -129,6 +129,9 @@ def checkGameEnd():
         if board[PATTERNSIZE-1][x] == OCCUPIED_S:
             return True
     return False
+
+def close():
+    logF.close()
 
 ########################################################################
 ### Game helper functions
