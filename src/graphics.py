@@ -99,7 +99,7 @@ def darker (color, times=1):
             newcolor[i] = max(newcolor[i]-COLORDELTA,0)
     return tuple(newcolor)
 
-def drawBox ((x, y), color):
+def drawBox ((x, y), color, filled=True):
     if x<=BOARDX-BOXSIZE or y<=BOARDY-BOXSIZE:
         return
     x  = x+1
@@ -113,7 +113,10 @@ def drawBox ((x, y), color):
     pygame.draw.polygon(SURFACE,darker(COLORS[color]),[(x,y),(x2,y),(x2,y2),(x,y2)])
     pygame.draw.polygon(SURFACE,lighter(COLORS[color],3),[(x,y),(x2,y),(x4,y3),(x3,y3)])
     pygame.draw.polygon(SURFACE,darker(COLORS[color],3),[(x3,y4),(x4,y4),(x2,y2),(x,y2)])
-    pygame.draw.polygon(SURFACE,lighter(COLORS[color]),[(x3,y3),(x4,y3),(x4,y4),(x3,y4)])
+    if filled:
+        pygame.draw.polygon(SURFACE,lighter(COLORS[color]),[(x3,y3),(x4,y3),(x4,y4),(x3,y4)])
+    else:
+        pygame.draw.polygon(SURFACE,BGCOLOR,[(x3,y3),(x4,y3),(x4,y4),(x3,y4)])
 
 def toPixel ((col, row)):
     return (BOARDX+col*BOXSIZE,BOARDY+row*BOXSIZE)
@@ -129,17 +132,17 @@ def drawBoard ():
             pygame.draw.circle(SURFACE,darker(BORDERCOLOR,4),pos,2)
     return
 
-def drawPiece (piece,pos=None):
+def drawPiece (piece,pos=None,real=True):
     assert piece != None
     if (pos==None):
         for box in piece.getBoxes():
             bPos = toPixel((box[0],box[1]-4))
-            drawBox(bPos,piece.bType)
+            drawBox(bPos,piece.bType,real)
 
     else:
         for box in piece.getBoxes():
             bPos = (pos[0]+(box[0]-piece.x)*BOXSIZE,pos[1]+box[1]*BOXSIZE)
-            drawBox(bPos,piece.bType)
+            drawBox(bPos,piece.bType,real)
             #print 'drawing a box at ',bPos
 
 def drawNextPiece (nextPiece):
@@ -170,4 +173,4 @@ def drawLineEffect(lines):
 
 def drawProjectPiece(piece):
     assert piece != None
-    drawPiece(piece)    #TODO: for testing only
+    drawPiece(piece,real=False)    #TODO: for testing only
