@@ -7,12 +7,14 @@ MOVING_DELAY = 0.1
 GAME_NAME = 'Tetris!!'
 
 def main():
-    global FPSCLOCK, DISPLAYSURF, running
+    global FPSCLOCK, DISPLAYSURF, running,SOUND_CLEARLINE
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     graphics.init()
+    pygame.mixer.init(44100, -16, 2, 2048)
     pygame.display.set_caption(GAME_NAME)
     pygame.mixer.music.load('../music/theme.mp3')  # load music theme
+    SOUND_CLEARLINE = pygame.mixer.Sound('../music/clearline.mp3')
     # TODO: need to lead line eating sound
     running = False
     # show main menu or sth
@@ -23,6 +25,9 @@ def main():
     terminate()
 
 def lineEaten(lines):
+    global SOUND_CLEARLINE
+    if len(lines) != 0:
+        SOUND_CLEARLINE.play()
     pass
 
 def newPieceGenerated():
@@ -127,6 +132,8 @@ def run():
             
             # update game state
             lines = game.update()
+            lineEaten(lines)
+            
             projectPiece = game.getProjection()
 
             # drawing
