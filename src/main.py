@@ -14,7 +14,7 @@ def main():
     pygame.mixer.init(44100, -16, 2, 2048)
     pygame.display.set_caption(GAME_NAME)
     pygame.mixer.music.load('../music/theme.mp3')  # load music theme
-    SOUND_CLEARLINE = pygame.mixer.Sound('../music/clearline.mp3')
+    SOUND_CLEARLINE = pygame.mixer.Sound(file='../music/clearline.wav')
     # TODO: need to lead line eating sound
     running = False
     # show main menu or sth
